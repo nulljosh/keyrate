@@ -5,4 +5,3 @@
 - [ ] Punctuation and numbers toggle
 - [ ] Quote mode
 - [ ] Per-run history graph (localStorage only)
-- [x] Landing page at / (bookrank style), test at /app (2026-09-02)
