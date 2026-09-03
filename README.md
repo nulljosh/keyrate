@@ -1,28 +1,42 @@
-<img src="icon.svg" width="80" alt="Keyrate">
+<img src="icon.svg" width="80" style="border-radius:18px">
 
 # Keyrate
 
 ![version](https://img.shields.io/badge/version-v1.0.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) [![GitHub](https://img.shields.io/badge/GitHub-nulljosh%2Fkeyrate-black?logo=github)](https://github.com/nulljosh/keyrate)
 
-**Live:** https://keyrate.heyitsmejosh.com
+How fast do you type? Every site that answers wants an account, a theme picker and forty settings before it shows you a number.
 
-A typing test. Type the words. See your speed.
+That's the gap.
 
-No account. No ads. No settings page. Open it, start typing, read the number.
+## What it does
 
-## Features
+Words appear. You type them. The clock runs out and you get one number.
 
-- Timed runs of 15, 30 or 60 seconds, or fixed runs of 25 or 50 words
-- Live countdown, then WPM, raw WPM, accuracy and character counts
-- Errors show in red as you type. Backspace into a wrong word to fix it
-- Your best score per mode is kept in the browser
-- Tab restarts. Nothing to click
+<img src="screenshots/typing.png" width="600">
+
+Wrong letters go red. Backspace into a bad word to fix it. Tab restarts. Your best per mode stays in the browser and nowhere else.
+
+<img src="screenshots/result.png" width="600">
+
+## Why this and not Monkeytype
+
+Monkeytype is great. It is also a settings page with a typing test attached. This is the test with nothing attached. One page, one script, no build step.
 
 ## Run it
 
-It is one HTML file and one script. Open `index.html`, or:
+```
+15 / 30 / 60 seconds, or 25 / 50 words
+Tab            restart
+Enter          restart after a result
+```
 
 ```
-npx wrangler dev
 node --test
+npx wrangler deploy
 ```
+
+Live at [keyrate.heyitsmejosh.com](https://keyrate.heyitsmejosh.com).
+
+## Architecture
+
+<img src="architecture.svg" width="600">
