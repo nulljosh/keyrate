@@ -2,7 +2,7 @@
 
 **v1.0.0** | September 2026
 
-A typing test in one file. Words appear, you type them, the page tells you how fast. It borrows the idea from Monkeytype and 10fastfingers and drops everything that is not the test. Live at [keyrate.heyitsmejosh.com](https://keyrate.heyitsmejosh.com).
+A typing test in one file. Words appear, you type them, the page tells you how fast. It borrows the idea from Monkeytype and 10fastfingers and drops everything that is not the test. Live at [keyrate.heyitsmejosh.com](https://keyrate.heyitsmejosh.com); the test itself is at [/app](https://keyrate.heyitsmejosh.com/app).
 
 ## Core Mechanic: Words Per Minute
 

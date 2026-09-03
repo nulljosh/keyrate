@@ -35,7 +35,7 @@ node --test
 npx wrangler deploy
 ```
 
-Live at [keyrate.heyitsmejosh.com](https://keyrate.heyitsmejosh.com).
+Live at [keyrate.heyitsmejosh.com](https://keyrate.heyitsmejosh.com); the test itself is at [/app](https://keyrate.heyitsmejosh.com/app).
 
 ## Architecture
 
