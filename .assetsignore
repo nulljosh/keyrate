@@ -1,0 +1,6 @@
+*.md
+*.test.mjs
+.git
+.github
+LICENSE
+wrangler.toml
