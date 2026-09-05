@@ -37,6 +37,8 @@ npx wrangler deploy
 
 Live at [keyrate.heyitsmejosh.com](https://keyrate.heyitsmejosh.com); the test itself is at [/app](https://keyrate.heyitsmejosh.com/app).
 
+**Terminal:** `swift build && ./.build/debug/keyrate-tui "target text" "typed text" 3.2` — see [tui/](tui/)
+
 ## Architecture
 
 <img src="architecture.svg" width="600">
