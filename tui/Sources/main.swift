@@ -6,6 +6,10 @@ import SwiftTUI
 // the port. `keyrate-tui <target> <typed> <seconds>` scores one attempt.
 
 let args = CommandLine.arguments.dropFirst()
+if args.first == "--check" {
+    runChecks()
+    exit(0)
+}
 guard args.count == 3, let seconds = Double(args.last!) else {
     print("usage: keyrate-tui \"<target text>\" \"<typed text>\" <seconds>")
     exit(1)
