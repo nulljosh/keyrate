@@ -48,6 +48,8 @@
   #result dl { display: flex; gap: 2rem; justify-content: center; margin: 1.5rem 0 0; }
   #result dt { color: var(--dim); font-size: .8rem; } #result dd { margin: 0; font-size: 1.3rem; }
   #best { color: var(--dim); font-size: .9rem; margin-top: 1rem; }
+  #hist { margin-top: .75rem; }
+  #hist polyline { fill: none; stroke: var(--accent, #111); stroke-width: 1.5; }
   input#sink { position: absolute; opacity: 0; pointer-events: none; }
   @media (max-width: 600px) { #words { font-size: 1.3rem; } #result .big { font-size: 3rem; } }
 </style>
@@ -61,6 +63,9 @@
   <span>|</span>
   <button data-mode="words" data-n="25">25 words</button>
   <button data-mode="words" data-n="50">50 words</button>
+  <button data-mode="quote" data-n="1">quote</button>
+  <span>|</span>
+  <button id="punct" aria-pressed="false" title="Punctuation and numbers">punct</button>
 </nav>
 <div id="live">&nbsp;</div>
 <div id="words" tabindex="0"><span id="caret"></span></div>
@@ -70,6 +75,7 @@
   <div class="big"><span id="rWpm"></span><small>wpm</small></div>
   <dl><div><dt>accuracy</dt><dd id="rAcc"></dd></div><div><dt>raw</dt><dd id="rRaw"></dd></div><div><dt>chars</dt><dd id="rChars"></dd></div></dl>
   <div id="best"></div>
+  <svg id="hist" width="240" height="40" aria-label="Recent runs" hidden></svg>
 </div>
 
 <script type="module">
@@ -78,15 +84,36 @@ import { stats } from '../score.js'
 // Top 200 English words, the same source 10fastfingers and Monkeytype's "english" list draw from.
 const WORDS = `the be of and a to in he have it that for they I with as not on she at by this we you do but from or which one would all will there say who make when can more if no man out other so what time up go about than into could state only new year some take come these know see use get like then first any work now may such give over think most even find day also after way many must look before great back through long where much should well people down own just because good each those feel seem how high too place little world very still nation hand old life tell write become here show house both between need mean call develop under last right move thing general school never same another begin while number part turn real leave might want point form off child few small since against ask late home interest large person end open public follow during present without again hold govern around possible head consider word program problem however lead system set order eye plan run keep face fact group play stand increase early course change help line city put close case force meet once water upon war build hear light unite live every country bring center let side try provide continue name certain power pay result question study woman member until far night always service away report something company week church toward start social room figure nature though young less enough almost read include president nothing yet better big boy cost business value second why clear expect family complete act sense mind experience art next near direct car law industry important girl god several matter usual rather per often kind among white reason action return foot care simple within love human along appear doctor believe speak active student month drive concern best door hope example inform body ever least probable understand reach effect different idea whole control condition field pass fall note special talk particular today measure walk teach low hour type carry rate remain full street easy although record sit determine level local sure receive thus moment spirit train college religion perhaps music grow free cause serve age book board recent sound office cut step class true history position above strong friend necessary add court deal tax support party whether either land material happen education death agree arm mother across quite anything town past view society manage answer break organize half fire lose money stop actual already effort wait department able political learn voice air together shall cover common subject draw short wife treat limit road letter color behind produce send term total university rise century success minute remember purpose test fight watch situation south ship`.split(/\s+/)
 
+// ponytail: a handful of built-in quotes, add a fetch if the list ever feels thin
+const QUOTES = [
+  "The best way to predict the future is to invent it.",
+  "Simplicity is the ultimate sophistication.",
+  "Programs must be written for people to read, and only incidentally for machines to execute.",
+  "Any sufficiently advanced technology is indistinguishable from magic.",
+  "Talk is cheap. Show me the code.",
+  "First, solve the problem. Then, write the code.",
+  "Premature optimization is the root of all evil.",
+  "The only way to learn a new programming language is by writing programs in it.",
+  "Make it work, make it right, make it fast.",
+  "Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away.",
+]
 const $ = s => document.querySelector(s)
 const wordsEl = $('#words'), caret = $('#caret'), live = $('#live'), sink = $('#sink'), result = $('#result')
-let mode = 'time', n = 60, target = [], typed = [], start = 0, timer = 0, done = false
+let mode = 'time', n = 60, target = [], typed = [], start = 0, timer = 0, done = false, punct = false
 
-const pick = k => Array.from({ length: k }, () => WORDS[Math.random() * WORDS.length | 0])
+const decorate = w => {
+  const r = Math.random()
+  if (r < .08) return String(Math.random() * 1000 | 0)
+  if (r < .2) w = w[0].toUpperCase() + w.slice(1)
+  const e = Math.random()
+  return w + (e < .1 ? '.' : e < .2 ? ',' : e < .23 ? '?' : e < .25 ? '!' : '')
+}
+const pick = k => Array.from({ length: k }, () => WORDS[Math.random() * WORDS.length | 0]).map(w => punct ? decorate(w) : w)
 
 function reset() {
   clearInterval(timer); done = false; start = 0; typed = ['']
-  target = pick(mode === 'words' ? n : 120)
+  target = mode === 'quote' ? QUOTES[Math.random() * QUOTES.length | 0].split(' ') : pick(mode === 'words' ? n : 120)
+  if (mode === 'quote') n = target.length
   result.classList.remove('show'); wordsEl.classList.remove('blur')
   live.innerHTML = mode === 'time' ? n : `0/${n}`
   sink.value = ''; render(); sink.focus()
@@ -136,7 +163,15 @@ function finish() {
   $('#rRaw').textContent = s.raw; $('#rChars').textContent = `${s.correct}/${s.wrong}`
   const key = `best:${mode}:${n}`
   let best = 0; try { best = +localStorage.getItem(key) || 0; if (s.wpm > best) localStorage.setItem(key, best = s.wpm) } catch {}
-  $('#best').textContent = `best ${best} wpm · ${mode === 'time' ? n + 's' : n + ' words'}`
+  $('#best').textContent = `best ${best} wpm · ${mode === 'time' ? n + 's' : mode === 'quote' ? 'quote' : n + ' words'}`
+  // ponytail: last 30 runs as a sparkline, localStorage only
+  try {
+    const runs = (JSON.parse(localStorage.getItem('runs')) || []).concat(s.wpm).slice(-30)
+    localStorage.setItem('runs', JSON.stringify(runs))
+    const hist = $('#hist'), max = Math.max(...runs, 1), W = 240, H = 40
+    hist.hidden = runs.length < 2
+    hist.innerHTML = `<polyline points="${runs.map((v, i) => `${i / (runs.length - 1) * (W - 4) + 2},${H - 2 - v / max * (H - 4)}`).join(' ')}"/>`
+  } catch {}
   wordsEl.classList.add('blur'); result.classList.add('show'); live.innerHTML = '&nbsp;'
 }
 
@@ -145,11 +180,11 @@ sink.addEventListener('input', () => {
   if (!start) { start = Date.now(); timer = setInterval(tick, 100) }
   const v = sink.value
   if (v.endsWith(' ')) {
-    if (typed.at(-1)) { typed.push(''); if (mode === 'words' && typed.length > n) return finish() }
+    if (typed.at(-1)) { typed.push(''); if (mode !== 'time' && typed.length > n) return finish() }
   } else typed[typed.length - 1] = v.slice(0, target[typed.length - 1].length + 8)
   sink.value = typed.at(-1)
   if (mode === 'time' && typed.length > target.length - 30) target.push(...pick(60))
-  if (mode === 'words') tick()
+  if (mode !== 'time') tick()
   render()
 })
 sink.addEventListener('keydown', e => {
@@ -164,8 +199,11 @@ document.addEventListener('keydown', e => {
 wordsEl.addEventListener('click', () => sink.focus())
 sink.addEventListener('blur', () => { if (!done) wordsEl.classList.add('blur') })
 sink.addEventListener('focus', () => wordsEl.classList.remove('blur'))
+$('#punct').addEventListener('click', e => {
+  punct = !punct; e.currentTarget.setAttribute('aria-pressed', punct); reset(); e.stopPropagation()
+})
 $('#modes').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return
+  const b = e.target.closest('button'); if (!b || b.id === 'punct') return
   document.querySelectorAll('#modes button').forEach(x => x.removeAttribute('aria-pressed'))
   b.setAttribute('aria-pressed', 'true'); mode = b.dataset.mode; n = +b.dataset.n; reset()
 })
