@@ -8,6 +8,8 @@ How fast do you type? Every site that answers wants an account, a theme picker a
 
 That's the gap.
 
+<img src="progress.svg" width="460">
+
 ## What it does
 
 Words appear. You type them. The clock runs out and you get one number.
