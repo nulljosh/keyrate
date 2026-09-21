@@ -13,4 +13,6 @@ Typing speed test. Type words that appear, clock runs out, get one number. No ac
 | `score.test.mjs` | Unit tests for scoring calculation. |
 | `devices.css` | Responsive design and device frame styling (web-only, no device frames on keyrate). |
 | `app/index.html` | Alternative entry point (unused, legacy). |
+| `tui/` | Terminal UI. SwiftPM + SwiftTUI target. Runs the same typing test in the terminal using Checks.swift (display), Score.swift (logic shared via code generation or direct port), main.swift (entry). |
+| `Package.swift` | SwiftPM manifest for TUI target. |
 | `wrangler.toml` | Cloudflare Worker deployment config. |
