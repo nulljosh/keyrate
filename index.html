@@ -9,12 +9,13 @@
 <meta property="og:description" content="Words appear. You type them. You get one number.">
 <meta property="og:type" content="website">
 <link rel="icon" href="icon.svg">
+<meta name="theme-color" content="#f5f0e4">
 <link rel="stylesheet" href="https://heyitsmejosh.com/tokens.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: var(--bg, #fafafa); color: var(--text, #111);
-    font-family: var(--font-body, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif);
+    background: var(--bg); color: var(--text);
+    font-family: var(--font-body);
     line-height: 1.6; -webkit-font-smoothing: antialiased;
   }
   a { color: inherit; text-decoration: none; }
@@ -25,39 +26,39 @@
   /* ponytail: static word wall, same top-200 list the test uses; no JS */
   .wall {
     position: absolute; inset: -10% -5%; z-index: 0; pointer-events: none; user-select: none;
-    font-size: 1.6rem; line-height: 1.6; color: var(--text3, #999); opacity: .28; text-align: left;
+    font-size: 1.6rem; line-height: 1.6; color: var(--text3); opacity: .28; text-align: left;
     animation: drift 90s linear infinite alternate;
   }
   @keyframes drift { to { transform: translateY(-12%); } }
   @media (prefers-reduced-motion: reduce) { .wall { animation: none; } }
   .hero::after {
     content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: radial-gradient(ellipse 60% 65% at 50% 50%, var(--bg, #fafafa) 25%, transparent 85%);
+    background: radial-gradient(ellipse 60% 65% at 50% 50%, var(--bg) 25%, transparent 85%);
   }
   .hero img { width: 88px; height: 88px; border-radius: 20px; margin: 0 auto 1.75rem; display: block; }
   h1 { font-size: clamp(2.25rem, 6.5vw, 3.5rem); font-weight: 700; letter-spacing: -.025em; line-height: 1.08; margin-bottom: .85rem; }
-  .hero p { font-size: clamp(1.05rem, 2.4vw, 1.25rem); color: var(--text2, #555); max-width: 34rem; margin: 0 auto 2.25rem; }
+  .hero p { font-size: clamp(1.05rem, 2.4vw, 1.25rem); color: var(--text2); max-width: 34rem; margin: 0 auto 2.25rem; }
 
   .buttons { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
-  .btn { display: inline-block; padding: .7rem 1.5rem; border-radius: 999px; font-size: .98rem; font-weight: 600; border: 1.5px solid var(--border, #ddd); transition: transform .15s; }
+  .btn { display: inline-block; padding: .7rem 1.5rem; border-radius: 999px; font-size: .98rem; font-weight: 600; border: 1.5px solid var(--border); transition: transform .15s; }
   .btn:hover { transform: translateY(-1px); }
-  .btn-primary { background: var(--text, #111); color: var(--bg, #fafafa); border-color: transparent; }
+  .btn-primary { background: var(--text); color: var(--bg); border-color: transparent; }
 
   section { padding: 4rem 0; }
   h2 { font-size: clamp(1.5rem, 3.6vw, 2rem); font-weight: 700; letter-spacing: -.02em; text-align: center; margin-bottom: .6rem; }
-  .lead { text-align: center; color: var(--text2, #555); max-width: 34rem; margin: 0 auto 2.25rem; }
+  .lead { text-align: center; color: var(--text2); max-width: 34rem; margin: 0 auto 2.25rem; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; }
-  .card { background: var(--bg2, #f0f0f0); border: 1px solid var(--border, #ddd); border-radius: 14px; padding: 1.4rem; }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem; }
   .card h3 { font-size: 1rem; font-weight: 650; margin-bottom: .4rem; }
-  .card p { font-size: .93rem; color: var(--text2, #555); }
+  .card p { font-size: .93rem; color: var(--text2); }
   .card a { display: inline-block; margin-top: .6rem; font-size: .875rem; font-weight: 500; }
   .card a:hover { text-decoration: underline; }
-  .soon { display: inline-block; margin-top: .6rem; font-size: .8rem; color: var(--text3, #999); }
-  kbd { font: inherit; font-size: .85em; border: 1px solid var(--border, #ddd); border-radius: 4px; padding: 0 .35em; }
+  .soon { display: inline-block; margin-top: .6rem; font-size: .8rem; color: var(--text3); }
+  kbd { font: inherit; font-size: .85em; border: 1px solid var(--border); border-radius: 4px; padding: 0 .35em; }
 
-  footer { padding: 2.5rem 0 3.5rem; text-align: center; font-size: .9rem; color: var(--text2, #555); border-top: 1px solid var(--border, #ddd); }
+  footer { padding: 2.5rem 0 3.5rem; text-align: center; font-size: .9rem; color: var(--text2); border-top: 1px solid var(--border); }
   footer a:hover { text-decoration: underline; }
-  :focus-visible { outline: 2px solid var(--text, #111); outline-offset: 2px; }
+  :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 </style>
 <link rel="stylesheet" href="devices.css">
 <script>
