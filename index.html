@@ -74,12 +74,12 @@
 </header>
 <div class="lp-stage">
 <div class="demo">
-  <div class="device device-iphone" id="demoFrame" data-title="Keyrate"><div class="device-screen"><iframe id="demoApp" title="Keyrate, live" loading="lazy" data-src="/app?embed"></iframe></div></div>
+  <div class="device device-iphone" id="demoFrame" data-title="Keyrate"><div class="device-screen"><iframe id="demoApp" title="Keyrate, live" loading="lazy" data-src="/app/?embed"></iframe></div></div>
   <span id="demoDev" hidden></span>
 </div>
 <script>
 (function(){var names={iphone:'iPhone',android:'Android',mac:'Mac',windows:'Windows'},dev=document.documentElement.dataset.device,f=document.getElementById('demoFrame'),i=document.getElementById('demoApp');
-if(!names[dev])dev='iphone';f.className='device device-'+dev;document.getElementById('demoDev').textContent=names[dev];document.getElementById('demoDev2').textContent=names[dev];
+if(!names[dev])dev='iphone';f.className='device device-'+dev;document.getElementById('demoDev').textContent=names[dev];addEventListener('DOMContentLoaded',function(){document.getElementById('demoDev2').textContent=names[dev];});
 if(!document.documentElement.classList.contains('embed'))i.src=i.dataset.src;
 function fit(){i.style.transform='scale('+(i.parentNode.clientWidth/i.offsetWidth)+')';}fit();addEventListener('resize',fit);})();
 </script>
