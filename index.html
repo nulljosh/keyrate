@@ -11,6 +11,8 @@
 <link rel="icon" href="icon.svg">
 <meta name="theme-color" content="#f5f0e4">
 <link rel="stylesheet" href="https://heyitsmejosh.com/tokens.css">
+<link rel="stylesheet" href="https://heyitsmejosh.com/landing.css">
+<script defer src="https://heyitsmejosh.com/landing.js" data-shape="bars"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -21,30 +23,11 @@
   a { color: inherit; text-decoration: none; }
   .container { max-width: 760px; margin: 0 auto; padding: 0 1.5rem; }
 
-  .hero { position: relative; overflow: hidden; padding: 6rem 0 5rem; text-align: center; }
-  .hero .container { position: relative; z-index: 2; }
-  /* ponytail: static word wall, same top-200 list the test uses; no JS */
-  .wall {
-    position: absolute; inset: -10% -5%; z-index: 0; pointer-events: none; user-select: none;
-    font-size: 1.6rem; line-height: 1.6; color: var(--text3); opacity: .28; text-align: left;
-    animation: drift 90s linear infinite alternate;
-  }
-  @keyframes drift { to { transform: translateY(-12%); } }
-  @media (prefers-reduced-motion: reduce) { .wall { animation: none; } }
-  .hero::after {
-    content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: radial-gradient(ellipse 60% 65% at 50% 50%, var(--bg) 25%, transparent 85%);
-  }
-  .hero img { width: 88px; height: 88px; border-radius: 20px; margin: 0 auto 1.75rem; display: block; }
-  h1 { font-size: clamp(2.25rem, 6.5vw, 3.5rem); font-weight: 700; letter-spacing: -.025em; line-height: 1.08; margin-bottom: .85rem; }
-  .hero p { font-size: clamp(1.05rem, 2.4vw, 1.25rem); color: var(--text2); max-width: 34rem; margin: 0 auto 2.25rem; }
 
-  .buttons { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
-  .btn { display: inline-block; padding: .7rem 1.5rem; border-radius: 999px; font-size: .98rem; font-weight: 600; border: 1.5px solid var(--border); transition: transform .15s; }
-  .btn:hover { transform: translateY(-1px); }
-  .btn-primary { background: var(--text); color: var(--bg); border-color: transparent; }
 
   section { padding: 4rem 0; }
+  .lp-stage { margin-top: 8px; }
+  .demo { margin: 0 auto; }
   h2 { font-size: clamp(1.5rem, 3.6vw, 2rem); font-weight: 700; letter-spacing: -.02em; text-align: center; margin-bottom: .6rem; }
   .lead { text-align: center; color: var(--text2); max-width: 34rem; margin: 0 auto 2.25rem; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; }
@@ -73,35 +56,36 @@
 .demo .device-screen iframe{position:absolute;top:0;left:0;border:0;display:block;transform-origin:0 0;width:390px;height:845px;background:#fff}
 .demo .device-mac .device-screen iframe,.demo .device-windows .device-screen iframe{width:1024px;height:640px}
 .demo-caption{font-size:.9rem;opacity:.65;margin:1rem 0 0}
-.embed .demo,.embed footer,.embed nav{display:none!important}
+.embed .demo,.embed footer,.embed nav,.embed .lp-rule,.embed #lp-bg{display:none!important}
 </style>
 </head>
 <body>
 <main>
-<section class="hero">
-  <div class="wall" aria-hidden="true">the be of and a to in he have it that for they I with as not on she at by this we you do but from or which one would all will there say who make when can more if no man out other so what time up go about than into could state only new year some take come these know see use get like then first any work now may such give over think most even find day also after way many must look before great back through long where much should well people down own just because good each those feel seem how high too place little world very still nation hand old life tell write become here show house both between need mean call develop under last right move thing general school never same another begin while number part turn real leave might want point form off child few small since against ask late home interest large person end open public follow during present without again hold govern around possible head consider word program problem however lead system set order eye plan run keep face fact group play stand increase early course change help line city put close case force meet once water upon war build hear light unite live every country bring center let side try provide continue name certain power pay result question study woman member until far night always service away report something company week church toward start social room figure nature though young less enough almost read include president nothing yet better big boy cost business value second why clear expect family complete act sense mind experience art next near direct car law industry important girl god several matter usual rather per often kind among white reason action return foot care simple within love human along appear doctor believe speak active student month drive concern best door hope example inform body ever least probable understand reach effect different idea whole control condition field pass fall note special talk particular today measure walk teach low hour type carry rate remain full street easy although record sit determine level local sure receive thus moment spirit train college religion perhaps music grow free cause serve age book board recent sound office cut step class true history position above strong friend necessary add court deal tax support party whether either land material happen education death agree arm mother across quite anything town past view society manage answer break organize half fire lose money stop actual already effort wait department able political learn voice air together shall cover common subject draw short wife treat limit road letter color behind produce send term total university rise century success minute remember purpose test fight watch situation south ship</div>
-  <div class="container">
-    <img src="icon.svg" alt="" width="88" height="88">
-    <h1>Words appear. You type them. You get one number.</h1>
+<div class="lp-rule" aria-hidden="true"><span>Keyrate</span><span><a href="https://github.com/nulljosh/keyrate">GitHub</a></span></div>
+<header class="lp-hero">
+  <span class="lp-mark"><img src="icon.svg" alt="" width="56" height="56"></span>
+  <h1>Introducing <span class="brand">Keyrate.</span></h1>
+  <p class="lp-eyebrow">A typing test with nothing attached</p>
+  <p class="lp-lede">Words appear. You type them. You get one number. No account, no settings page, no build step.</p>
+  <div class="lp-cta">
+    <a href="/app" class="lp-btn lp-solid">Start typing</a>
+    <a href="https://github.com/nulljosh/keyrate" class="lp-btn">Source</a>
+  </div>
+</header>
+<div class="lp-stage">
 <div class="demo">
   <div class="device device-iphone" id="demoFrame" data-title="Keyrate"><div class="device-screen"><iframe id="demoApp" title="Keyrate, live" loading="lazy" data-src="/app?embed"></iframe></div></div>
-  <p class="demo-caption">This is the <span id="demoDev">iPhone</span> app, live. Try it.</p>
+  <span id="demoDev" hidden></span>
 </div>
 <script>
 (function(){var names={iphone:'iPhone',android:'Android',mac:'Mac',windows:'Windows'},dev=document.documentElement.dataset.device,f=document.getElementById('demoFrame'),i=document.getElementById('demoApp');
-if(!names[dev])dev='iphone';f.className='device device-'+dev;document.getElementById('demoDev').textContent=names[dev];
+if(!names[dev])dev='iphone';f.className='device device-'+dev;document.getElementById('demoDev').textContent=names[dev];document.getElementById('demoDev2').textContent=names[dev];
 if(!document.documentElement.classList.contains('embed'))i.src=i.dataset.src;
 function fit(){i.style.transform='scale('+(i.parentNode.clientWidth/i.offsetWidth)+')';}fit();addEventListener('resize',fit);})();
 </script>
-
-    <div class="buttons">
-      <a href="/app" class="btn btn-primary">Start typing</a>
-      <a href="https://github.com/nulljosh/keyrate" class="btn">Source</a>
-    </div>
-  </div>
-</section>
-
-<section>
+  <p class="lp-cap">Fig. 1 &middot; The <span id="demoDev2">iPhone</span> app, live. Try it.</p>
+</div>
+<section class="lp-reveal">
   <div class="container">
     <h2>The test, and only the test</h2>
     <div class="grid">
@@ -113,7 +97,7 @@ function fit(){i.style.transform='scale('+(i.parentNode.clientWidth/i.offsetWidt
   </div>
 </section>
 
-<section>
+<section class="lp-reveal">
   <div class="container">
     <h2>Every platform</h2>
     <p class="lead">The web version is live today. Native apps are on the way, and they will be real binaries, not wrapped web pages.</p>
