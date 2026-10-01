@@ -1,1 +1,1 @@
-/Users/joshua/Documents/Code/keyrate/CLAUDE.md
+CLAUDE.md
