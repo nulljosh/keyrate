@@ -98,3 +98,12 @@ Apple login and 2FA, Play sign-in, signing and notarizing, store submits, postin
 ## Launch (Joshua, upstairs)
 - [ ] App Store submit for iOS and Mac 2.3.0 (asc login from Joshua's Mac).
 - [ ] Product Hunt (Tuesday), Show HN, Reddit (r/typing, r/MechanicalKeyboards, r/macapps), Twitter/X.
+
+## Gaps vs all-the-right-type, Monkeytype, 10fastfingers (2026-11-17)
+One row per minor, web first, then Apple and Kotlin.
+- [ ] Lessons: home row first, one row at a time, with a finger guide on the keyboard
+- [ ] Test options: stop on error, blind (no red), zen (no timer), smooth caret, key sounds (off by default)
+- [ ] Text: custom pasted text (never sets a best), word list sizes 200 / 1k / 5k, languages
+- [ ] History: a graph of every run, a per-key heatmap, best per mode with dates
+- [ ] Accounts, leaderboards (daily, weekly), live races, a shareable result card and certificate
+- [ ] Themes beyond light and dark, kept to the brand palette
