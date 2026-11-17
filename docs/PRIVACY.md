@@ -23,4 +23,4 @@ No ads. No selling data. No tracking.
 Keyrate isn't aimed at children under 13 and doesn't knowingly collect anything from them.
 
 ## Contact
-Questions: trommatic@icloud.com
+Questions: info@jaybulb.com

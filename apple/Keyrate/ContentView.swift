@@ -3,13 +3,13 @@ import SwiftUI
 private struct Palette {
     // dim is small text (4.5:1 needed), word is the large upcoming words (3:1 needed)
     let bg, text, dim, word, chip, bad, hi: Color
-    // Colours from the shared tokens (warm paper and charcoal), accent from brand/BRAND.md.
+    // Colours from web/brand/BRAND.md: white and charcoal, ink for the caret, red only for a miss.
     static let light = Palette(bg: .white, text: Color(red: 0.122, green: 0.106, blue: 0.086),
                                dim: Color(red: 0.122, green: 0.106, blue: 0.086).opacity(0.66), word: Color(red: 0.122, green: 0.106, blue: 0.086).opacity(0.52), chip: Color(red: 0.961, green: 0.961, blue: 0.969),
-                               bad: Color(red: 0.753, green: 0.224, blue: 0.169), hi: Color(red: 0.902, green: 0.604, blue: 0).opacity(0.25))
+                               bad: Color(red: 0.753, green: 0.224, blue: 0.169), hi: Color(red: 0.122, green: 0.106, blue: 0.086).opacity(0.12))
     static let dark = Palette(bg: Color(red: 0.110, green: 0.102, blue: 0.090), text: Color(red: 0.953, green: 0.929, blue: 0.878),
                               dim: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.66), word: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.52), chip: Color(red: 0.149, green: 0.137, blue: 0.122),
-                              bad: Color(red: 0.851, green: 0.314, blue: 0.247), hi: Color(red: 0.902, green: 0.604, blue: 0).opacity(0.25))
+                              bad: Color(red: 0.851, green: 0.314, blue: 0.247), hi: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.16))
 }
 
 private struct DefaultsStore: Store {

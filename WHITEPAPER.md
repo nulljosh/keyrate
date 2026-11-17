@@ -71,4 +71,4 @@ Cloudflare Workers static assets. `.assetsignore` keeps the docs and tests off t
 
 Custom word lists, themes, accounts and multiplayer. Any of these can be added, but none of them make the number more true, and that number is the only reason the page exists.
 
-MIT. Copyright 2026 Joshua Trommel.
+Apache 2.0. Copyright 2026 Joshua Trommel.

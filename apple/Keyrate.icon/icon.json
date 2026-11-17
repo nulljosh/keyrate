@@ -3,17 +3,8 @@
     {
       "value": {
         "linear-gradient": [
-          "extended-srgb:1.000,0.824,0.227,1.0",
-          "extended-srgb:0.902,0.604,0.000,1.0"
-        ]
-      }
-    },
-    {
-      "appearance": "dark",
-      "value": {
-        "linear-gradient": [
-          "extended-srgb:0.253,0.169,0.000,1.0",
-          "extended-srgb:0.108,0.072,0.000,1.0"
+          "extended-srgb:0.169,0.157,0.145,1.0",
+          "extended-srgb:0.078,0.071,0.063,1.0"
         ]
       }
     }

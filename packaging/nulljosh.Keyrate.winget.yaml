@@ -5,7 +5,7 @@ PackageVersion: 2.0.0
 PackageLocale: en-US
 Publisher: Joshua Trommel
 PackageName: Keyrate
-License: MIT
+License: Apache-2.0
 LicenseUrl: https://github.com/nulljosh/labs/blob/main/keyrate/LICENSE
 ShortDescription: A typing test with nothing attached. One test, one number.
 PackageUrl: https://keyrate.jaybulb.com

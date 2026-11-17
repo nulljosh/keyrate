@@ -1,42 +1,57 @@
 # Keyrate brand kit and design system
 
-A typing test that finds the keys you keep missing. The mark is a keyboard, keys staggered like the real thing.
+**Brand kit** is who Keyrate is: the icon, the colours, the voice. **Design system** is how screens get built: tokens, type, spacing and the few components every port shares. Both live here; `tokens.css` is the design system in code.
 
-## The mark
-One bold flat white glyph on an accent gradient tile. No text, no outline, no emblem.
+## The idea
+Keycaps. Cream keys on charcoal, and one red key: the one you keep missing. Everything Keyrate shows is built from that picture, from the icon to the landing hero to the result screen.
 
-- `../Keyrate.icon` is the source of truth (Icon Composer). Light and dark fills are set in it.
-- `../icon.svg` is the flat copy for READMEs (shown at 80 px). `icon-1024.png` is the App Store icon, no alpha.
-- `mark.svg` is the glyph alone in `currentColor` for your own background.
-- Clear space equal to the width of the glyph's thickest stroke. Smallest size 16 px.
+## Icon
+- `../icon.svg`: the app icon, rounded tile, for READMEs (80 px) and the web.
+- `icon-1024.png`: App Store icon, square, no alpha.
+- `../../apple/Keyrate.icon`: Icon Composer source for iOS and macOS 26 (charcoal fill, `glyph.png` keys).
+- `mark.svg`: the keys alone in `currentColor`, the missed key as an outline. For your own background.
+- Clear space: one key width. Smallest size: 16 px (the favicon drops the key lips).
 
 ## Colour
-| Role | Value |
-|---|---|
-| Accent | `#e69a00` |
-| Gradient top | `#ffd23a` |
-| Text | `#1f1b16` light, `#f3ede0` dark (shared warm ink) |
-| Background | `#ffffff` light, `#1c1a17` dark |
-| Surface (chips, selected mode) | `#f5f5f7` light, `#26231f` dark |
-| Error | `#c0392b` light, `#d9503f` dark |
+| Role | Light | Dark |
+|---|---|---|
+| Background | `#ffffff` | `#1c1a17` |
+| Surface (keys, cards, chips) | `#f5f5f7` | `#26231f` |
+| Ink | `#1f1b16` | `#f3ede0` |
+| Keycap (icon) | `#f3ede0` on `#b9b0a0` lip | same |
+| Tile (icon) | `#2b2825` to `#141210` | same |
+| Miss | `#d70015` | `#ff453a` |
 
-Light mode is white, not the shared cream: the words are the only thing on the page and white gives them the most contrast. Dark mode is the shared warm dark. Web (`app/index.html`), SwiftUI (`Palette` in `ContentView.swift`) and the splash all use these values.
-
-The accent is for actions, links and the icon. Never brown, beige, purple or teal.
+Red means a miss and nothing else: a lit key, a wrong letter, the icon's one key. Actions use ink, not red. No beige, purple or teal.
 
 ## Type
-The system font: `-apple-system, BlinkMacSystemFont, "SF Pro Text", Lato, "Helvetica Neue", Helvetica, Arial, sans-serif`. Scale 34/41 bold, 22/28, 17/24, 15/20, 13/18.
+System sans only (`-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif`). No serif, no mono outside code.
+
+| Use | Size / line | Weight | Tracking |
+|---|---|---|---|
+| Hero | 84 / 87 (clamp from 44) | 700 | -0.028em |
+| Big number (wpm) | 72 / 72 | 700 | -0.04em |
+| Title | 34 / 41 | 700 | -0.02em |
+| Body | 17 / 26 | 400 | 0 |
+| Small | 15 / 22 | 400 | 0 |
+| Footnote | 13 / 18 | 400 | 0 |
 
 ## Space and shape
-- Space on the 8 point grid: 4, 8, 12, 16, 24, 32, 48. Side margin 20. Reading column 680.
-- Radii: cards 28, grouped lists 20, controls fully round, icon 22 percent.
-- Buttons are 48 points tall capsules, one height in a row. The mode chips in the floating bar are the one exception: 32 points, so the bar stays one line on a phone in landscape and on every Mac and iPad. Focus is a 4 point ring at 30 percent accent.
-- Motion is 0.2 s ease and honours reduced motion.
+- 8 point grid: 4, 8, 12, 16, 24, 32, 48, 64, 96.
+- Radii: keycap 16 percent of its width, cards 28, buttons fully round, icon 22 percent.
+- Keycaps have a lip: a 5 percent drop shadow in the border colour, gone when pressed.
 
-`tokens.css` holds the app's accent. Everything else comes from the shared token file.
-
-## Layers
-The mode bar is the only glass: it floats over the words (Liquid Glass on iOS and macOS 26, the regular material before, a solid fill under Reduce Transparency). Words, result and history stay flat on the background. The caret and the WPM curve use the accent; nothing else does.
+## Components
+- **Keycap**: surface face, 1 px border, lip. States: idle, down (ink face, no lip), miss (red face), worst (red ring).
+- **Mode bar**: the only glass. Liquid Glass on iOS and macOS 26, regular material before, solid under Reduce Transparency.
+- **Result**: the big number, accuracy beside it, the speed line, the keyboard with five keys lit.
+- **Buttons**: capsules, 48 pt tall. Solid ink for the main action, outline for the rest.
 
 ## Motion
-Launch splash: the mark draws in, fills with the accent, scales away, about 1.1 s, once per launch, a plain fade under Reduce Motion.
+- Keys press in 40 ms and release in 90 ms. Slips flash red for 240 ms.
+- Loose keycaps drift and follow the scroll at three depths; the scene eases toward the scroll position.
+- The footer band: ordered dither, a sweeping beam, crawling scanlines.
+- Reduce Motion: everything still, the five worst keys shown.
+
+## Voice
+Short sentences, plain words, talk to one person. Say what the test shows, not what it is not.
