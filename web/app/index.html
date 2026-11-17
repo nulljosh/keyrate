@@ -98,6 +98,7 @@
     <button data-mode="words" data-n="25">25 words</button>
     <button data-mode="words" data-n="50">50 words</button>
     <button data-mode="quote" data-n="1">quote</button>
+    <button data-mode="drill" data-n="25" title="25 words built from the keys you miss most">drill</button>
     <span aria-hidden="true">|</span>
     <button id="punct" aria-pressed="false" title="Punctuation and numbers">punct</button>
     <button id="restart">restart</button>
@@ -123,13 +124,13 @@
 
 <script type="module">
 import { Session } from '../session.js'
-import { topMisses, missedLine, KEY_ROWS } from '../score.js'
+import { topMisses, missedLine, KEY_ROWS, drillPool, mergeMisses, weakKeys, seenKeys } from '../score.js'
 import { WORDS, QUOTES } from '../words.js'
 
 const $ = s => document.querySelector(s)
 const wordsEl = $('#words'), caret = $('#caret'), live = $('#live'), sink = $('#sink'), result = $('#result'), hint = $('#hint')
 const HINT = 'Start typing. <kbd>Tab</kbd> restarts, <kbd>Esc</kbd> picks a mode.'
-let kind = 'time', n = 60, punct = false, session, timer = 0, lastQuote = null, shown = 0
+let kind = 'time', n = 60, punct = false, session, timer = 0, lastQuote = null, shown = 0, drilling = false
 
 // the last mode and punct setting survive a reload
 try { const p = JSON.parse(localStorage.getItem('prefs')); if (p) ({ kind, n, punct } = p) } catch {}
@@ -140,7 +141,13 @@ const savePrefs = () => { try { localStorage.setItem('prefs', JSON.stringify({ k
 
 function reset() {
   clearInterval(timer); timer = 0
-  session = new Session({ kind, n, punct, words: WORDS, quotes: QUOTES, avoid: lastQuote })
+  // drill is a 25 word run drawn from the words that hold your weak keys (misses saved across runs)
+  let weak = []
+  if (kind === 'drill') try { weak = weakKeys(JSON.parse(localStorage.getItem('misses')) || {}, JSON.parse(localStorage.getItem('seen')) || {}) } catch {}
+  drilling = kind === 'drill' && weak.length > 0 // no misses saved yet: a plain 25 words, saved as such
+  session = kind === 'drill'
+    ? new Session({ kind: 'words', n, punct, words: drillPool(WORDS, weak), quotes: QUOTES })
+    : new Session({ kind, n, punct, words: WORDS, quotes: QUOTES, avoid: lastQuote })
   if (kind === 'quote') lastQuote = session.target.join(' ')
   result.classList.remove('show'); wordsEl.classList.remove('blur')
   $('#srResult').textContent = ''; hint.innerHTML = HINT
@@ -204,8 +211,13 @@ function showResult() {
     return r
   }))
   $('#missed').textContent = missedLine(top)
-  const label = kind === 'time' ? n + 's' : kind === 'quote' ? 'quote' : n + ' words'
-  const key = `best:${kind}:${kind === 'quote' ? 1 : n}`
+  try { if (!session.pasted) {
+    localStorage.setItem('misses', JSON.stringify(mergeMisses(JSON.parse(localStorage.getItem('misses')), session.misses)))
+    localStorage.setItem('seen', JSON.stringify(mergeMisses(JSON.parse(localStorage.getItem('seen')), seenKeys(session.target, session.typed.length))))
+  } } catch {}
+  const k = kind === 'drill' && !drilling ? 'words' : kind
+  const label = k === 'time' ? n + 's' : k === 'quote' ? 'quote' : k === 'drill' ? 'drill' : n + ' words' + (kind === 'drill' ? ' · drill starts after your first run' : '')
+  const key = `best:${k}:${k === 'quote' ? 1 : n}`
   let best = 0; try { best = +localStorage.getItem(key) || 0; if (!session.pasted && s.wpm > best) localStorage.setItem(key, best = s.wpm) } catch {}
   $('#best').textContent = `best ${best} wpm · ${label}${session.pasted ? ' · pasted, not counted' : ''}`
   // ponytail: last 30 runs as a sparkline, localStorage only
