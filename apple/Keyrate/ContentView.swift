@@ -278,6 +278,11 @@ struct ContentView: View {
 extension View {
     /// Liquid Glass on iOS and macOS 26, the regular material before that.
     @ViewBuilder func glassBar() -> some View {
+        // Liquid Glass needs the iOS 26 SDK (Xcode 26); older toolchains build the material fallback only.
+        #if compiler(>=6.2)
         if #available(iOS 26, macOS 26, *) { glassEffect(.regular, in: .rect(cornerRadius: 24)) } else { background(.regularMaterial, in: .rect(cornerRadius: 24)) }
+        #else
+        background(.regularMaterial, in: .rect(cornerRadius: 24))
+        #endif
     }
 }
