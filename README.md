@@ -30,7 +30,7 @@ Every port checks itself against `tests/vectors.json`, so a score means the same
 ## Run it
 
 ```sh
-node --test tests/                 # scoring, rules, word list, vectors
+node --test tests/*.test.mjs       # scoring, rules, word list, vectors
 cd web && python3 -m http.server   # the site at localhost:8000
 scripts/check.sh                   # node, Kotlin, Xcode and README links
 ```
