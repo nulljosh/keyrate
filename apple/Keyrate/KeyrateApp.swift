@@ -13,7 +13,7 @@ struct KeyrateApp: App {
     @AppStorage("appearance") private var appearance = Appearance.system
 
     var body: some Scene {
-        let window = WindowGroup { ContentView().preferredColorScheme(appearance.scheme) }
+        let window = WindowGroup { RootView().preferredColorScheme(appearance.scheme) }
         #if os(macOS)
         window.defaultSize(width: 980, height: 720)
             .windowStyle(.hiddenTitleBar) // full-bleed like the web; the traffic lights sit over the background

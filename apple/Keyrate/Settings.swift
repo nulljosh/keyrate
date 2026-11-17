@@ -15,8 +15,6 @@ struct SettingsView: View {
             .padding(24)
             .tabItem { Label("General", systemImage: "gearshape") }
 
-            ProgressPane()
-                .tabItem { Label("Progress", systemImage: "chart.line.uptrend.xyaxis") }
         }
         .frame(width: 480)
         .preferredColorScheme(appearance.scheme)

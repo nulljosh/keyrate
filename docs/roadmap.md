@@ -107,3 +107,4 @@ One row per minor, web first, then Apple and Kotlin.
 - [ ] History: a graph of every run, a per-key heatmap, best per mode with dates
 - [ ] Accounts, leaderboards (daily, weekly), live races, a shareable result card and certificate
 - [ ] Themes beyond light and dark, kept to the brand palette
+- [ ] Settings, Account tab: sign in and register with Apple, Google, GitHub and email (jaybulb-api already does email, Apple and Google id tokens; GitHub OAuth needs adding there), forgot password, profile and avatar
