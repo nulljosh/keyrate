@@ -45,6 +45,14 @@ struct ContentView: View {
     #else
     private var wordSize: CGFloat { 26 * min(typeScale, 1.6) }
     #endif
+    /// Tab and Return work everywhere except iOS 16, where only the restart chip does.
+    private var keyHints: Bool {
+        #if os(iOS)
+        if #available(iOS 17, *) { return true } else { return false }
+        #else
+        return true
+        #endif
+    }
     private var nowMs: Int64 { Int64(ProcessInfo.processInfo.systemUptime * 1000) + 1 } // never 0, Session reads 0 as "not started"
 
     @State private var splash = UserDefaults.standard.string(forKey: "shot") == nil // store shots skip it
@@ -64,15 +72,14 @@ struct ContentView: View {
                     #if os(iOS)
                     .textInputAutocapitalization(.never)
                     #endif
-                    .onChange(of: input) { _, new in
+                    .onChange(of: input) { new in
                         if new != session.text { session.setText(new, nowMs: nowMs) }
                         if input != session.text { input = session.text } // a refused edit puts the old text back
                         clock += 1
                     }
-                    .onKeyPress(.tab) { restart(); return .handled }
-                    .onKeyPress(.return) { if session.done { restart(); return .handled }; return .ignored }
+                    .modifier(KeyHandlers(tab: { restart() }, enter: { if session.done { restart(); return true }; return false }))
                 if let r = session.result { resultView(r) } else {
-                    Text("Start typing. Tab restarts.").font(.system(size: 14)).foregroundStyle(p.dim)
+                    Text(keyHints ? "Start typing. Tab restarts." : "Start typing.").font(.system(size: 14)).foregroundStyle(p.dim)
                 }
             }
             .padding(24)
@@ -91,7 +98,7 @@ struct ContentView: View {
                 session.tick(nowMs: nowMs); clock += 1
             }
         }
-        .onChange(of: session.done) { _, done in
+        .onChange(of: session.done) { done in
             if done, let r = session.result { best = session.pasted ? Int(store.get(mode.key) ?? "") ?? 0 : recordRun(store, mode, r.wpm) }
         }
     }
@@ -188,7 +195,7 @@ struct ContentView: View {
             keyboard(topMisses(session.misses))
             Text("best \(best) wpm · \(mode.kind == .time ? "\(mode.n)s" : mode.label)").font(.system(size: 14)).foregroundStyle(p.dim)
             sparkline(runs(store))
-            Text("Enter restarts.").font(.system(size: 13)).foregroundStyle(p.dim)
+            if keyHints { Text("Enter restarts.").font(.system(size: 13)).foregroundStyle(p.dim) }
         }
         .accessibilityElement(children: .combine)
     }
@@ -214,7 +221,7 @@ struct ContentView: View {
                                     .font(.system(size: 14, weight: lit.contains(k) ? .semibold : .regular))
                                     .foregroundStyle(lit.contains(k) ? .white : p.dim)
                                     .frame(width: k == " " ? 160 : 30, height: 30)
-                                    .background(lit.contains(k) ? p.bad : p.chip, in: .rect(cornerRadius: 6))
+                                    .background(lit.contains(k) ? p.bad : p.chip, in: RoundedRectangle(cornerRadius: 6))
                             }
                         }
                     }
@@ -280,9 +287,59 @@ extension View {
     @ViewBuilder func glassBar() -> some View {
         // Liquid Glass needs the iOS 26 SDK (Xcode 26); older toolchains build the material fallback only.
         #if compiler(>=6.2)
-        if #available(iOS 26, macOS 26, *) { glassEffect(.regular, in: .rect(cornerRadius: 24)) } else { background(.regularMaterial, in: .rect(cornerRadius: 24)) }
+        if #available(iOS 26, macOS 26, *) { glassEffect(.regular, in: RoundedRectangle(cornerRadius: 24)) } else { background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24)) }
         #else
-        background(.regularMaterial, in: .rect(cornerRadius: 24))
+        background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24))
         #endif
     }
 }
+
+/// Tab restarts, Return restarts after a result. onKeyPress needs macOS 14 / iOS 17; on macOS 13 an AppKit key
+/// monitor does the same job. iOS 16 relies on the restart chip (a hardware keyboard there is rare).
+private struct KeyHandlers: ViewModifier {
+    let tab: () -> Void
+    let enter: () -> Bool
+    func body(content: Content) -> some View {
+        if #available(iOS 17, macOS 14, *) {
+            content
+                .onKeyPress(.tab) { tab(); return .handled }
+                .onKeyPress(.return) { enter() ? .handled : .ignored }
+        } else {
+            #if os(macOS)
+            content.background(KeyMonitor(tab: tab, enter: enter))
+            #else
+            content
+            #endif
+        }
+    }
+}
+
+#if os(macOS)
+import AppKit
+private struct KeyMonitor: NSViewRepresentable {
+    let tab: () -> Void
+    let enter: () -> Bool
+    /// Holds the latest closures and the view, so the monitor acts only for its own window (not Settings or a
+    /// second test window) and never on a stale copy of the closures.
+    final class Coordinator { var monitor: Any?; weak var view: NSView?; var tab: () -> Void = {}; var enter: () -> Bool = { false } }
+    func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeNSView(context: Context) -> NSView {
+        let v = NSView(), c = context.coordinator
+        c.view = v; c.tab = tab; c.enter = enter
+        c.monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak c] e in
+            guard let c, let w = c.view?.window, e.window === w else { return e }
+            let plain = e.modifierFlags.intersection([.shift, .command, .option, .control]).isEmpty
+            switch e.keyCode {
+            case 48 where plain: c.tab(); return nil          // Tab
+            case 36, 76: return c.enter() ? nil : e           // Return, keypad Enter
+            default: return e
+            }
+        }
+        return v
+    }
+    func updateNSView(_ nsView: NSView, context: Context) { context.coordinator.tab = tab; context.coordinator.enter = enter }
+    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
+        if let m = coordinator.monitor { NSEvent.removeMonitor(m) }
+    }
+}
+#endif

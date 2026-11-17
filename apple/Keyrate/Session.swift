@@ -1,5 +1,4 @@
 import Foundation
-import Observation
 
 enum Kind { case time, words, quote }
 
@@ -44,7 +43,7 @@ struct Dice {
 let pasteMax = 20
 
 /// One test, same rules as app/index.html and kmp/Session.kt. The view feeds it text and clock readings.
-@Observable
+/// Not @Observable (macOS 14 / iOS 17 only): the view bumps its `clock` state after every change instead, which works back to macOS 13 / iOS 16.
 final class Session {
     let mode: Mode
     private let punct: Bool
