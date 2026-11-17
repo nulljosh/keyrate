@@ -85,3 +85,16 @@ Apple login and 2FA, Play sign-in, signing and notarizing, store submits, postin
 
 ## Ingested 2026-11-13
 - [ ] Note was the title only ("Keyrate"), written in a run of App Review status checks. Report its review status. Last known (root roadmap, 2026-11-08): waiting on Apple. Could not re-pull today: the asc API is blocked by an unaccepted Apple agreement (see vault blocked-on-joshua.md).
+
+## Next (2026-11-17)
+- [ ] Languages: Spanish, French, German, Portuguese word lists counted from public domain novels (scripts/wordlist.mjs per language), a Language picker in Settings and on the web, UI strings translated.
+- [ ] Accounts on jaybulb-api: sign in, sign up, forgot password, profile with avatar (upload or a generated keycap), bests synced. Privacy policy refreshed alongside.
+- [ ] Leaderboards tab (daily and weekly per mode), then matchmaking and live races (Durable Objects).
+- [ ] Drill mode in the Apple and Kotlin apps (web has it).
+- [ ] iPhone QA on Joshua's Mac (the iOS simulator is unusable on Dad's 2017 Intel Mac).
+- [ ] CLOUDFLARE_API_TOKEN repo secret, then commit .github/workflows/deploy.yml.
+- [ ] Docs refresh: CLAUDE.md (ask first), docs/ARCHITECTURE.md, docs/LOOP-HANDOFF.md, docs/images/architecture.svg.
+
+## Launch (Joshua, upstairs)
+- [ ] App Store submit for iOS and Mac 2.3.0 (asc login from Joshua's Mac).
+- [ ] Product Hunt (Tuesday), Show HN, Reddit (r/typing, r/MechanicalKeyboards, r/macapps), Twitter/X.

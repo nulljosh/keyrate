@@ -16,16 +16,8 @@ struct KeyrateApp: App {
         let window = WindowGroup { ContentView().preferredColorScheme(appearance.scheme) }
         #if os(macOS)
         window.defaultSize(width: 980, height: 720)
-        Settings {
-            Form {
-                Picker("Appearance", selection: $appearance) {
-                    ForEach(Appearance.allCases) { Text($0.label).tag($0) }
-                }
-                .pickerStyle(.inline)
-            }
-            .padding(20).frame(width: 280)
-            .preferredColorScheme(appearance.scheme)
-        }
+            .windowStyle(.hiddenTitleBar) // full-bleed like the web; the traffic lights sit over the background
+        Settings { SettingsView() }
         #else
         window
         #endif

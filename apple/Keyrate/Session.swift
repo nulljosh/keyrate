@@ -209,3 +209,19 @@ func recordRun(_ store: Store, _ mode: Mode, _ wpm: Int) -> Int {
     store.put("runs", (runs(store) + [wpm]).suffix(30).map(String.init).joined(separator: ","))
     return best
 }
+
+/// Missed keys across runs, saved as "e:4,t:2". Feeds the Progress pane; letters only.
+func savedMisses(_ store: Store) -> [String: Int] {
+    var out: [String: Int] = [:]
+    for pair in (store.get("misses") ?? "").split(separator: ",") {
+        let kv = pair.split(separator: ":"); if kv.count == 2, let n = Int(kv[1]) { out[String(kv[0])] = n }
+    }
+    return out
+}
+
+func addMisses(_ store: Store, _ run: [String: Int]) {
+    var all = savedMisses(store)
+    for (k, v) in run where k.count == 1 && k.first!.isLetter { all[k, default: 0] += v }
+    store.put("misses", all.map { "\($0.key):\($0.value)" }.sorted().joined(separator: ","))
+    store.put("count", String((Int(store.get("count") ?? "") ?? 0) + 1))
+}

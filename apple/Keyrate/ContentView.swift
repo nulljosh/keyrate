@@ -12,7 +12,7 @@ private struct Palette {
                               bad: Color(red: 0.851, green: 0.314, blue: 0.247), hi: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.16))
 }
 
-private struct DefaultsStore: Store {
+struct DefaultsStore: Store {
     func get(_ key: String) -> String? { UserDefaults.standard.string(forKey: key) }
     func put(_ key: String, _ value: String) { UserDefaults.standard.set(value, forKey: key) }
 }
@@ -55,7 +55,11 @@ struct ContentView: View {
     }
     private var nowMs: Int64 { Int64(ProcessInfo.processInfo.systemUptime * 1000) + 1 } // never 0, Session reads 0 as "not started"
 
-    @State private var splash = UserDefaults.standard.string(forKey: "shot") == nil // store shots skip it
+    /// The splash plays once, on the very first launch. After an update, a What's New sheet shows once instead.
+    private static let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+    private static let seen = UserDefaults.standard.string(forKey: "seenVersion")
+    @State private var splash = seen == nil && UserDefaults.standard.string(forKey: "shot") == nil // store shots skip it
+    @State private var whatsNew = seen != nil && seen != version
 
     var body: some View {
         ScrollView {
@@ -85,9 +89,17 @@ struct ContentView: View {
             .padding(24)
             .frame(maxWidth: .infinity, minHeight: 600)
         }
-        .safeAreaInset(edge: .top) { modeBar.padding(6).glassBar().padding(.horizontal, 16).padding(.top, 8) } // functional layer: the only glass
+        .safeAreaInset(edge: .top) { // functional layer: the only glass. A compact centred pill on the Mac, as on the web
+            #if os(macOS)
+            modeBar.padding(6).fixedSize().glassBar().frame(maxWidth: .infinity).padding(.top, 14)
+            #else
+            modeBar.padding(6).glassBar().padding(.horizontal, 16).padding(.top, 8)
+            #endif
+        }
         .background(p.bg.ignoresSafeArea())
         .overlay { if splash { Splash(shown: $splash, bg: p.bg) } }
+        .onAppear { UserDefaults.standard.set(Self.version, forKey: "seenVersion") }
+        .sheet(isPresented: $whatsNew) { WhatsNew(version: Self.version) }
         .task { try? await Task.sleep(for: .milliseconds(300)); focus = true } // the field is not focusable until the window is up
         #if DEBUG
         .onAppear(perform: shot)
@@ -99,7 +111,10 @@ struct ContentView: View {
             }
         }
         .onChange(of: session.done) { done in
-            if done, let r = session.result { best = session.pasted ? Int(store.get(mode.key) ?? "") ?? 0 : recordRun(store, mode, r.wpm) }
+            if done, let r = session.result {
+                best = session.pasted ? Int(store.get(mode.key) ?? "") ?? 0 : recordRun(store, mode, r.wpm)
+                if !session.pasted { addMisses(store, session.misses) }
+            }
         }
     }
 
@@ -146,11 +161,21 @@ struct ContentView: View {
         return out
     }
 
-    private var modeBar: some View {
-        Flow(hSpacing: 4, vSpacing: 4, centered: true) {
+    /// One row on the Mac (the window is always wide enough); wraps on a phone.
+    @ViewBuilder private var modeBar: some View {
+        #if os(macOS)
+        HStack(spacing: 4) { barItems }
+        #else
+        Flow(hSpacing: 4, vSpacing: 4, centered: true) { barItems }
+        #endif
+    }
+
+    @ViewBuilder private var barItems: some View {
+        Group {
             ForEach(modes.indices, id: \.self) { i in
                 chip(modes[i].label, on: modes[i] == mode) { mode = modes[i]; restart() }
                     .keyboardShortcut(KeyEquivalent(Character("\(i + 1)")), modifiers: .command) // Cmd-1 to Cmd-6
+                if i == 2 || i == modes.count - 1 { divider } // time | words and quote | toggles, as on the web
             }
             chip("punct", on: punct) { punct.toggle(); restart() }
             chip("restart", on: false) { restart() }
@@ -166,6 +191,10 @@ struct ContentView: View {
             .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
             .accessibilityLabel("Appearance")
         }
+    }
+
+    private var divider: some View {
+        Text("|").font(.system(size: 14)).foregroundStyle(p.dim.opacity(0.5)).padding(.vertical, 8).accessibilityHidden(true)
     }
 
     private func chip(_ label: String, on: Bool, _ action: @escaping () -> Void) -> some View {
@@ -343,3 +372,25 @@ private struct KeyMonitor: NSViewRepresentable {
     }
 }
 #endif
+
+/// Shown once after an update. Plain, like Apple's own: a title, three lines, one button.
+struct WhatsNew: View {
+    let version: String
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("What's new in Keyrate \(version)").font(.system(size: 22, weight: .bold))
+            item("keyboard", "Your weak keys, kept", "Missed keys are saved across runs. See them in Settings, Progress.")
+            item("circle.lefthalf.filled", "Light, dark or auto", "Pick an appearance, or follow your Mac.")
+            item("desktopcomputer", "Runs on older Macs", "Keyrate now works back to macOS Ventura.")
+            Button("Continue") { dismiss() }.keyboardShortcut(.defaultAction).frame(maxWidth: .infinity)
+        }
+        .padding(28).frame(width: 420)
+    }
+    private func item(_ icon: String, _ title: String, _ body: String) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: icon).font(.system(size: 20)).frame(width: 28)
+            VStack(alignment: .leading, spacing: 2) { Text(title).fontWeight(.semibold); Text(body).foregroundStyle(.secondary) }
+        }
+    }
+}
