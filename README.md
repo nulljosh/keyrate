@@ -41,7 +41,7 @@ iPhone, iPad and Mac: `cd apple && xcodegen generate && open Keyrate.xcodeproj`.
 
 <img src="architecture.svg" width="720">
 
-More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), the reasoning in [WHITEPAPER.md](WHITEPAPER.md), the brand in [web/brand/BRAND.md](web/brand/BRAND.md).
+More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), the reasoning in [docs/WHITEPAPER.md](docs/WHITEPAPER.md), the brand in [web/brand/BRAND.md](web/brand/BRAND.md).
 
 ## License
 
