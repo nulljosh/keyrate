@@ -6,13 +6,13 @@ PackageLocale: en-US
 Publisher: Joshua Trommel
 PackageName: Keyrate
 License: Apache-2.0
-LicenseUrl: https://github.com/nulljosh/labs/blob/main/keyrate/LICENSE
+LicenseUrl: https://github.com/nulljosh/keyrate/blob/main/LICENSE
 ShortDescription: A typing test with nothing attached. One test, one number.
 PackageUrl: https://keyrate.jaybulb.com
 Installers:
   - Architecture: x64
     InstallerType: wix
-    InstallerUrl: https://github.com/nulljosh/labs/releases/download/keyrate-desktop-v2.0.0/Keyrate-2.0.0.msi
+    InstallerUrl: https://github.com/nulljosh/keyrate/releases/download/keyrate-desktop-v2.0.0/Keyrate-2.0.0.msi
     InstallerSha256: REPLACE_WITH_THE_MSI_SHA256
 ManifestType: singleton
 ManifestVersion: 1.6.0

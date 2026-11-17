@@ -3,7 +3,7 @@
 ## Setup
 
 ```
-git clone https://github.com/nulljosh/labs.git
+git clone https://github.com/nulljosh/keyrate.git
 cd keyrate
 open Package.swift   # or the .xcodeproj/.xcworkspace, if present
 ```

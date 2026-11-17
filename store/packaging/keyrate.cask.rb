@@ -4,7 +4,7 @@ cask "keyrate" do
   version "2.0.0"
   sha256 "REPLACE_WITH_THE_DMG_SHA256"
 
-  url "https://github.com/nulljosh/labs/releases/download/keyrate-desktop-v#{version}/Keyrate-#{version}.dmg"
+  url "https://github.com/nulljosh/keyrate/releases/download/keyrate-desktop-v#{version}/Keyrate-#{version}.dmg"
   name "Keyrate"
   desc "Typing test with nothing attached"
   homepage "https://keyrate.jaybulb.com"

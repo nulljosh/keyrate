@@ -4,7 +4,7 @@
 
 A typing test that shows you which keys slow you down. Live at **[keyrate.jaybulb.com](https://keyrate.jaybulb.com)**.
 
-<img src="screenshots/landing.png" width="720">
+<img src="docs/images/landing.png" width="720">
 
 ## Features
 
@@ -14,7 +14,7 @@ A typing test that shows you which keys slow you down. Live at **[keyrate.jaybul
 - **Six modes.** 15, 30 or 60 seconds, 25 or 50 words, or a quote. Punctuation and numbers optional.
 - **Light, dark or auto.** Follows your device, or pick one.
 
-<img src="screenshots/result.png" width="720">
+<img src="docs/images/typing.png" width="720">
 
 ## Platforms
 
@@ -32,14 +32,14 @@ Every port checks itself against `tests/vectors.json`, so a score means the same
 ```sh
 node --test tests/                 # scoring, rules, word list, vectors
 cd web && python3 -m http.server   # the site at localhost:8000
-./check.sh                         # node, Kotlin, Xcode and README links
+scripts/check.sh                   # node, Kotlin, Xcode and README links
 ```
 
 iPhone, iPad and Mac: `cd apple && xcodegen generate && open Keyrate.xcodeproj`. Android and desktop: `cd kmp && ./gradlew :composeApp:run`. Terminal: `swift run --package-path tui keyrate-tui`.
 
 ## Architecture
 
-<img src="architecture.svg" width="720">
+<img src="docs/images/architecture.svg" width="720">
 
 More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), the reasoning in [docs/WHITEPAPER.md](docs/WHITEPAPER.md), the brand in [web/brand/BRAND.md](web/brand/BRAND.md).
 
