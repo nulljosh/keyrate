@@ -6,10 +6,10 @@ private struct Palette {
     // Colours from web/brand/BRAND.md: white and charcoal, ink for the caret, red only for a miss.
     static let light = Palette(bg: .white, text: Color(red: 0.122, green: 0.106, blue: 0.086),
                                dim: Color(red: 0.122, green: 0.106, blue: 0.086).opacity(0.66), word: Color(red: 0.122, green: 0.106, blue: 0.086).opacity(0.52), chip: Color(red: 0.961, green: 0.961, blue: 0.969),
-                               bad: Color(red: 0.753, green: 0.224, blue: 0.169), hi: Color(red: 0.122, green: 0.106, blue: 0.086).opacity(0.12))
+                               bad: Color(red: 0, green: 0.478, blue: 1), hi: Color(red: 0.122, green: 0.106, blue: 0.086).opacity(0.12))
     static let dark = Palette(bg: Color(red: 0.110, green: 0.102, blue: 0.090), text: Color(red: 0.953, green: 0.929, blue: 0.878),
                               dim: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.66), word: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.52), chip: Color(red: 0.149, green: 0.137, blue: 0.122),
-                              bad: Color(red: 0.851, green: 0.314, blue: 0.247), hi: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.16))
+                              bad: Color(red: 0.039, green: 0.518, blue: 1), hi: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.16))
 }
 
 struct DefaultsStore: Store {

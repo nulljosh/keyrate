@@ -50,7 +50,7 @@ struct ProgressPane: View {
                         ForEach(Array(weak), id: \.key) { k in
                             Text(k.key).font(.system(size: 15, weight: .semibold)).foregroundStyle(.white)
                                 .frame(width: 34, height: 34)
-                                .background(Color(red: 0.843, green: 0, blue: 0.082), in: RoundedRectangle(cornerRadius: 6))
+                                .background(Color(red: 0, green: 0.478, blue: 1), in: RoundedRectangle(cornerRadius: 6))
                         }
                     }
                 }

@@ -8,7 +8,7 @@ A typing test that shows you which keys slow you down.
 
 ## Features
 
-- **Your five worst keys, lit.** The result draws a keyboard with the keys you miss most in red. A slip you fixed still counts.
+- **Your five worst keys, lit.** The result draws a keyboard with the keys you miss most in blue. A slip you fixed still counts.
 - **Speed, second by second.** A line of your words per minute across the run, with raw speed beside it.
 - **Words of its own.** The thousand most common words across twenty public domain novels, plus quotes from writers long out of copyright.
 - **Six modes.** 15, 30 or 60 seconds, 25 or 50 words, or a quote. Punctuation and numbers optional.

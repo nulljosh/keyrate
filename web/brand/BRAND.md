@@ -3,7 +3,7 @@
 **Brand kit** is who Keyrate is: the icon, the colours, the voice. **Design system** is how screens get built: tokens, type, spacing and the few components every port shares. Both live here; `tokens.css` is the design system in code.
 
 ## The idea
-Keycaps. Cream keys on charcoal, and one red key: the one you keep missing. Everything Keyrate shows is built from that picture, from the icon to the landing hero to the result screen.
+Keycaps. Cream keys on charcoal, and one blue key: the one you keep missing. Everything Keyrate shows is built from that picture, from the icon to the landing hero to the result screen.
 
 ## Icon
 - `../icon.svg`: the app icon, rounded tile, for READMEs (80 px) and the web.
@@ -20,9 +20,9 @@ Keycaps. Cream keys on charcoal, and one red key: the one you keep missing. Ever
 | Ink | `#1f1b16` | `#f3ede0` |
 | Keycap (icon) | `#f3ede0` on `#b9b0a0` lip | same |
 | Tile (icon) | `#2b2825` to `#141210` | same |
-| Miss | `#d70015` | `#ff453a` |
+| Miss | `#007aff` | `#0a84ff` |
 
-Red means a miss and nothing else: a lit key, a wrong letter, the icon's one key. Actions use ink, not red. No beige, purple or teal.
+Blue means a miss and nothing else: a lit key, a wrong letter, the icon's one key. Actions use ink, not red. No beige, purple or teal.
 
 ## Type
 System sans only (`-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif`). No serif, no mono outside code.

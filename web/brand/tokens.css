@@ -1,12 +1,12 @@
 /* Keyrate design tokens. Ink for actions, red only for a miss. Spacing, radii and type scale come from the shared system. */
 :root {
   --accent: #1f1b16;          /* actions use ink */
-  --miss: #d70015;            /* a missed key, a wrong letter */
+  --miss: #007aff;            /* a missed key, a wrong letter */
   --key-face: #f3ede0;        /* icon keycap */
   --key-lip: #b9b0a0;
   --tile-top: #2b2825;        /* icon tile */
   --tile-bottom: #141210;
   --accent-ring: color-mix(in srgb, #1f1b16 30%, transparent);
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --accent: #f3ede0; --miss: #ff453a; --accent-ring: color-mix(in srgb, #f3ede0 30%, transparent); } }
-:root[data-theme="dark"] { --accent: #f3ede0; --miss: #ff453a; --accent-ring: color-mix(in srgb, #f3ede0 30%, transparent); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --accent: #f3ede0; --miss: #0a84ff; --accent-ring: color-mix(in srgb, #f3ede0 30%, transparent); } }
+:root[data-theme="dark"] { --accent: #f3ede0; --miss: #0a84ff; --accent-ring: color-mix(in srgb, #f3ede0 30%, transparent); }

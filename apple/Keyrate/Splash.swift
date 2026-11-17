@@ -27,7 +27,7 @@ struct Splash: View {
     @State private var out = false
     @Environment(\.colorScheme) private var scheme
     private var ink: Color { scheme == .dark ? Color(red: 0.953, green: 0.929, blue: 0.878) : Color(red: 0.122, green: 0.106, blue: 0.086) }
-    private var miss: Color { scheme == .dark ? Color(red: 1, green: 0.271, blue: 0.227) : Color(red: 0.843, green: 0, blue: 0.082) }
+    private var miss: Color { scheme == .dark ? Color(red: 0.039, green: 0.518, blue: 1) : Color(red: 0, green: 0.478, blue: 1) }
 
     var body: some View {
         ZStack {

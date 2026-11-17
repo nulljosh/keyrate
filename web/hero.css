@@ -3,9 +3,9 @@
    Loose keycaps drift around it at three depths. hero.js moves every layer at its own scroll speed. */
 .lp-hero { isolation: isolate; overflow: hidden; justify-content: flex-start;
            padding-top: clamp(96px, 16vh, 168px); padding-bottom: calc(var(--k) * 5.4);
-           --miss: #d70015; --k: clamp(28px, 6.2vw, 82px); --gap: calc(var(--k) * .14); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lp-hero { --miss: #ff453a; } }
-:root[data-theme="dark"] .lp-hero { --miss: #ff453a; }
+           --miss: #007aff; --k: clamp(28px, 6.2vw, 82px); --gap: calc(var(--k) * .14); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lp-hero { --miss: #0a84ff; } }
+:root[data-theme="dark"] .lp-hero { --miss: #0a84ff; }
 .lp-hero .hero-copy { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
 
 /* the ground: the keyboard, tilted onto the desk, feathered at the edges */
