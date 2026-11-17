@@ -1,0 +1,3 @@
+/* Keyrate Sans: Inter (OFL 1.1, see OFL.txt) with tabular figures and a tailed l by default, Latin only. */
+@font-face { font-family: "Keyrate Sans"; src: url("/fonts/KeyrateSans.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
+body, button, input { font-family: "Keyrate Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; font-optical-sizing: auto; }
