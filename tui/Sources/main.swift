@@ -7,6 +7,22 @@ import Foundation
 
 let args = Array(CommandLine.arguments.dropFirst())
 if args.first == "--check" { runChecks(); exit(0) }
+if args.first == "--version" { print("keyrate 2.5.1"); exit(0) }
+if args.first == "--help" || args.first == "-h" {
+    print("""
+    keyrate: a typing test that shows which keys you miss.
+      keyrate [mode]    start in a mode: 15, 30, 60, 25, 50, quote or drill
+      keyrate --check   run the scoring checks
+    Keys: type to start, Tab restarts, Left and Right change the mode, Esc quits.
+    Bests live in ~/.keyrate. NO_COLOR=1 turns colour off.
+    """)
+    exit(0)
+}
+// Raw mode needs a real terminal; piped or redirected, say so instead of wedging the shell.
+if isatty(STDIN_FILENO) == 0 || isatty(STDOUT_FILENO) == 0 { FileHandle.standardError.write("keyrate: run it in a terminal (keyrate --help)\n".data(using: .utf8)!); exit(1) }
+// Plain 16-colour codes only, so any terminal draws it. NO_COLOR (no-color.org): misses underline instead of blue.
+let noColor = !(ProcessInfo.processInfo.environment["NO_COLOR"] ?? "").isEmpty
+let miss = noColor ? "\u{1B}[4m" : "\u{1B}[34m", accent = noColor ? "\u{1B}[1m" : "\u{1B}[34m"
 
 /// ~/.keyrate: the same keys the apps use (best:time:60, runs).
 struct FileStore: Store {
@@ -58,7 +74,7 @@ func width() -> Int {
     return ioctl(STDOUT_FILENO, UInt(TIOCGWINSZ), &w) == 0 && w.ws_col > 20 ? min(Int(w.ws_col) - 4, 80) : 76
 }
 
-/// The words, coloured as typed: right in plain ink, wrong in red, the rest dim; three lines around the current one.
+/// The words, coloured as typed: right in plain ink, wrong in blue, the rest dim; three lines around the current one.
 func wordLines() -> [String] {
     let w = width()
     var lines: [[String]] = [[]], lens = [0], currentLine = 0
@@ -69,14 +85,14 @@ func wordLines() -> [String] {
         if i == session.typed.count - 1 { currentLine = lines.count - 1 }
         var s = ""
         if let typed, i < session.typed.count - 1 || session.done {
-            s = typed == t ? t : "\u{1B}[31m\(typed.isEmpty ? t : typed)\u{1B}[0m"
+            s = typed == t ? t : "\(miss)\(typed.isEmpty ? t : typed)\u{1B}[0m"
         } else if let typed {
             let tc = Array(t), yc = Array(typed)
             for (c, ch) in tc.enumerated() {
-                if c < yc.count { s += yc[c] == ch ? String(ch) : "\u{1B}[31m\(yc[c])\u{1B}[0m" }
+                if c < yc.count { s += yc[c] == ch ? String(ch) : "\(miss)\(yc[c])\u{1B}[0m" }
                 else { s += c == yc.count ? "\u{1B}[4;2m\(ch)\u{1B}[0m" : "\u{1B}[2m\(ch)\u{1B}[0m" }
             }
-            if yc.count > tc.count { s += "\u{1B}[31m\(String(yc[tc.count...]))\u{1B}[0m" }
+            if yc.count > tc.count { s += "\(miss)\(String(yc[tc.count...]))\u{1B}[0m" }
         } else {
             s = "\u{1B}[2m\(t)\u{1B}[0m"
         }
@@ -106,7 +122,7 @@ func draw() {
         out += "  \u{1B}[2mEnter or Tab for another, Left and Right change the mode, Esc quits\u{1B}[0m\n"
     } else {
         let counter = session.mode.kind == .time ? "\(session.remaining(nowMs: nowMs()))" : "\(max(0, session.typed.count - 1))/\(session.total)"
-        out += "  \u{1B}[33m\(counter)\u{1B}[0m\n\n"
+        out += "  \(accent)\(counter)\u{1B}[0m\n\n"
         out += wordLines().map { "  \($0)\n" }.joined()
         out += "\n  \u{1B}[2m\(session.started ? "Tab restarts, Esc quits" : "Start typing. Tab restarts, Left and Right change the mode, Esc quits")\u{1B}[0m\n"
     }
