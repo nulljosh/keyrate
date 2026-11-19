@@ -1,0 +1,43 @@
+name: desktop
+# On a release tag: the Linux .deb, the Windows .msi and an Android debug APK, attached to that GitHub release.
+# Run by hand with a tag to fill in an older release.
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag: { description: "Release tag, e.g. v2.5.0", required: true }
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, task: ":composeApp:packageDeb :composeApp:assembleDebug" }
+          - { os: windows-latest, task: ":composeApp:packageMsi" }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ inputs.tag || github.ref }}" }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew ${{ matrix.task }}
+        working-directory: kmp
+        shell: bash
+      - name: Attach to the release
+        shell: bash
+        run: |
+          shopt -s nullglob globstar
+          files=(kmp/composeApp/build/compose/binaries/**/*.deb kmp/composeApp/build/compose/binaries/**/*.msi)
+          for apk in kmp/composeApp/build/outputs/apk/debug/*.apk; do cp "$apk" "Keyrate-${TAG#v}-android-debug.apk"; files+=("Keyrate-${TAG#v}-android-debug.apk"); done
+          ls -la "${files[@]}"
+          gh release upload "$TAG" "${files[@]}" --clobber
