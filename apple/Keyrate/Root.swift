@@ -5,14 +5,15 @@ import SwiftUI
 /// scrolls under it. Content itself never gets glass.
 struct RootView: View {
     enum Tab { case test, progress, settings }
-    @State private var tab = Tab.test
+    /// `open Keyrate.app --args -openTab settings` (or progress) starts on that tab, for QA screenshots.
+    @State private var tab: Tab = { switch UserDefaults.standard.string(forKey: "openTab") { case "settings": .settings; case "progress": .progress; default: .test } }()
 
     var body: some View {
         Group {
             switch tab {
             case .test: ContentView()
             case .progress: ScrollView { ProgressPane().frame(maxWidth: 560).padding(.bottom, 72) }.frame(maxWidth: .infinity)
-            case .settings: AccountPane(withAppearance: true).frame(maxWidth: 560).padding(.top, 24).padding(.bottom, 72).frame(maxWidth: .infinity)
+            case .settings: SettingsScreen()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

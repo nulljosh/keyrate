@@ -1,6 +1,6 @@
 import SwiftUI
 
-private struct Palette {
+struct Palette {
     // dim is small text (4.5:1 needed), word is the large upcoming words (3:1 needed)
     let bg, text, dim, word, chip, bad, hi: Color
     // Colours from web/palette.css: white and cool greys in light, near-black and cool greys in dark, blue only for a
@@ -181,16 +181,18 @@ struct ContentView: View {
             chip("punct", on: punct) { punct.toggle(); restart() }
             chip("restart", on: false) { restart() }
                 .keyboardShortcut("r", modifiers: .command)
-            Menu {
-                Picker("Appearance", selection: $appearance) {
-                    ForEach(Appearance.allCases) { Text($0.label).tag($0) }
-                }
+            // One click cycles auto, light, dark, as on the web (a Picker in a Menu showed an empty submenu on macOS 13)
+            Button {
+                let all = Appearance.allCases
+                appearance = all[(all.firstIndex(of: appearance)! + 1) % all.count]
             } label: {
-                Image(systemName: "circle.lefthalf.filled").font(.system(size: 14)).foregroundStyle(p.dim)
+                Label(appearance == .system ? "auto" : appearance.rawValue, systemImage: "circle.lefthalf.filled")
+                    .labelStyle(.titleAndIcon).font(.system(size: 14)).foregroundStyle(p.dim)
                     .padding(.horizontal, 12).padding(.vertical, 8).contentShape(Capsule())
             }
-            .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
-            .accessibilityLabel("Appearance")
+            .buttonStyle(.plain)
+            .help("Appearance: auto follows your device")
+            .accessibilityLabel("Appearance, \(appearance == .system ? "auto" : appearance.rawValue)")
         }
     }
 

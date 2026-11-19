@@ -26,6 +26,14 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 2rem; box-sizing: border-box;
   }
+  /* home and account in the corners; they fade out while a run is going, so nothing moves near the words */
+  .corner { position: fixed; top: 16px; z-index: 3; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px;
+            border-radius: 999px; color: var(--text2, #666); text-decoration: none; font-size: .9375rem; font-weight: 600; transition: opacity .25s; }
+  .corner:hover { color: var(--text, #111); } .corner:focus-visible { outline: 2px solid var(--miss, #007aff); outline-offset: 2px; }
+  .corner img { border-radius: 7px; display: block; }
+  .home { left: clamp(8px, 2vw, 24px); color: var(--text, #111); } .acct { right: clamp(8px, 2vw, 24px); }
+  body.typing .corner { opacity: 0; pointer-events: none; }
+  @media (max-width: 600px) { .home span { display: none; } .corner { top: 8px; } }
   #stage { display: flex; flex-direction: column; align-items: center; gap: 2.5rem; max-width: 100%; }
   h1 { font-size: 1rem; font-weight: 600; letter-spacing: .02em; margin: 0; color: var(--dim); }
   nav {
@@ -88,6 +96,9 @@
 <link rel="stylesheet" href="/fonts/fonts.css">
 </head>
 <body>
+<a class="corner home" href="/" aria-label="Keyrate home"><img src="/icon.svg?v=4" alt="" width="28" height="28"><span>Keyrate</span></a>
+<a class="corner acct" href="/account/" id="acct">Log in</a>
+<script>/* signed in on this browser: Account instead of Log in */try{const s=JSON.parse(localStorage.getItem("sb-spark-auth-token"));if(s&&s.user)document.getElementById("acct").textContent="Account"}catch(e){}</script>
 <main id="stage">
   <h1 class="sr">Keyrate</h1>
   <nav id="modes" aria-label="Test mode">
@@ -151,7 +162,7 @@ function reset() {
     ? new Session({ kind: 'words', n, punct, words: drillPool(WORDS, weak), quotes: QUOTES })
     : new Session({ kind, n, punct, words: WORDS, quotes: QUOTES, avoid: lastQuote })
   if (kind === 'quote') lastQuote = session.target.join(' ')
-  result.classList.remove('show'); wordsEl.classList.remove('blur')
+  result.classList.remove('show'); wordsEl.classList.remove('blur'); document.body.classList.remove('typing')
   $('#srResult').textContent = ''; hint.innerHTML = HINT
   counter(); sink.value = ''; shown = 0; render(); sink.focus({ preventScroll: true })
 }
@@ -193,7 +204,7 @@ function tick() {
 }
 
 function showResult() {
-  clearInterval(timer); timer = 0; doneAt = Date.now()
+  clearInterval(timer); timer = 0; doneAt = Date.now(); document.body.classList.remove('typing')
   const s = session.result
   $('#rWpm').textContent = s.wpm; $('#rAcc').textContent = s.accuracy + '%'; $('#rKeys').textContent = session.keyAccuracy + '%'
   $('#rRaw').textContent = s.raw; $('#rChars').textContent = `${s.correct}/${s.wrong}`; $('#rCons').textContent = session.consistency + '%'
@@ -241,6 +252,7 @@ sink.addEventListener('input', () => {
   session.setText(sink.value, Date.now())
   sink.value = session.text
   if (session.startMs && !timer) timer = setInterval(tick, 100)
+  document.body.classList.toggle('typing', !!session.startMs && !session.done)
   if (session.done) return showResult()
   if (kind !== 'time') counter()
   render()

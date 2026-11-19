@@ -1,0 +1,283 @@
+import AuthenticationServices
+import CryptoKit
+import SwiftUI
+
+/// Settings in the window: your account first, appearance at the bottom as three small previews (like Claude's).
+/// Drawn in Keyrate's own palette, not a system Form, so it matches the test. Buttons are glass on iOS and macOS 26
+/// (glassProminent for the main action) and plain capsules before that.
+struct SettingsScreen: View {
+    @Environment(\.colorScheme) private var scheme
+    private var p: Palette { scheme == .dark ? .dark : .light }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 40) {
+                section("Account") { AccountCard(p: p) }
+                section("Appearance") { AppearancePicker(p: p) }
+            }
+            .frame(maxWidth: 520)
+            .padding(.horizontal, 24).padding(.top, 48).padding(.bottom, 96)
+            .frame(maxWidth: .infinity)
+        }
+        .background(p.bg.ignoresSafeArea())
+    }
+
+    private func section<C: View>(_ title: String, @ViewBuilder _ content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title).font(.system(size: 13, weight: .semibold)).foregroundStyle(p.dim).textCase(.uppercase).kerning(0.4)
+            content()
+        }
+    }
+}
+
+// MARK: - Account
+
+private struct AccountCard: View {
+    let p: Palette
+    @ObservedObject private var account = Account.shared
+    @State private var email = ""
+    @State private var password = ""
+    @State private var signingUp = false
+    @State private var message: (text: String, bad: Bool)?
+    @State private var armed = false
+    @State private var nonce = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if let who = account.email { signedIn(who) } else { signedOut }
+            if let message {
+                Text(message.text).font(.system(size: 13)).foregroundStyle(message.bad ? Color.red : p.bad)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(20)
+        .background(p.chip, in: RoundedRectangle(cornerRadius: 20))
+    }
+
+    private func signedIn(_ who: String) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 12) {
+                Text(String(who.prefix(1)).uppercased()).font(.system(size: 18, weight: .semibold)).foregroundStyle(.white)
+                    .frame(width: 40, height: 40).background(p.bad, in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(who).font(.system(size: 15, weight: .semibold)).foregroundStyle(p.text)
+                    Text("Your results stay on this device. Syncing bests comes later.").font(.system(size: 13)).foregroundStyle(p.dim)
+                }
+            }
+            HStack(spacing: 8) {
+                GlassButton("Log Out", p: p) { Task { await account.logOut(); say("Logged out.") } }
+                GlassButton(armed ? "Click again to delete" : "Delete Account", p: p, destructive: true) { delete() }
+            }
+        }
+    }
+
+    private var signedOut: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Log in | Sign up, the same pill switch as the mode bar
+            HStack(spacing: 4) {
+                tab("Log In", !signingUp) { signingUp = false; message = nil }
+                tab("Sign Up", signingUp) { signingUp = true; message = nil }
+            }
+            .padding(4).background(p.bg.opacity(0.6), in: Capsule())
+
+            // Apple, Google, GitHub
+            VStack(spacing: 8) {
+                SignInWithAppleButton(signingUp ? .signUp : .signIn) { req in
+                    nonce = UUID().uuidString
+                    req.requestedScopes = [.email, .fullName]
+                    req.nonce = SHA256.hash(data: Data(nonce.utf8)).map { String(format: "%02x", $0) }.joined()
+                } onCompletion: { result in apple(result) }
+                .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
+                .frame(height: 40).clipShape(Capsule())
+                HStack(spacing: 8) {
+                    GlassButton("Google", icon: "g.circle", p: p, soon: true) {}
+                    GlassButton("GitHub", icon: "chevron.left.forwardslash.chevron.right", p: p, soon: true) {}
+                }
+            }
+
+            HStack { line; Text("or with email").font(.system(size: 12)).foregroundStyle(p.dim); line }
+
+            VStack(spacing: 8) {
+                field("Email", text: $email, secure: false)
+                field(signingUp ? "Password, 8 or more characters" : "Password", text: $password, secure: true)
+            }
+            GlassButton(signingUp ? "Create Account" : "Log In", p: p, prominent: true, disabled: account.busy || email.isEmpty || password.isEmpty, action: go)
+                .keyboardShortcut(.defaultAction)
+            HStack {
+                Text("One account for Keyrate and the other Jaybulb apps.").font(.system(size: 12)).foregroundStyle(p.dim)
+                Spacer()
+                if !signingUp {
+                    Button("Forgot password?", action: reset).buttonStyle(.plain).font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(p.text).underline().disabled(account.busy || email.isEmpty)
+                }
+            }
+        }
+    }
+    @Environment(\.colorScheme) private var scheme
+
+    private var line: some View { Rectangle().fill(p.dim.opacity(0.25)).frame(height: 1) }
+
+    private func tab(_ label: String, _ on: Bool, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(label).font(.system(size: 13, weight: on ? .semibold : .regular)).foregroundStyle(on ? p.text : p.dim)
+                .frame(maxWidth: .infinity, minHeight: 30)
+                .background(on ? p.bg : .clear, in: Capsule())
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(on ? .isSelected : [])
+    }
+
+    private func field(_ label: String, text: Binding<String>, secure: Bool) -> some View {
+        Group {
+            if secure { SecureField(label, text: text).textContentType(.password).onSubmit(go) }
+            else { TextField(label, text: text).textContentType(.username).autocorrectionDisabled() }
+        }
+        .textFieldStyle(.plain).font(.system(size: 15)).foregroundStyle(p.text)
+        .padding(.horizontal, 14).frame(height: 44)
+        .background(p.bg, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(p.dim.opacity(0.25)))
+        .accessibilityLabel(label)
+    }
+
+    private func say(_ t: String, bad: Bool = false) { message = (t, bad) }
+
+    private func go() {
+        let e = email.trimmingCharacters(in: .whitespaces)
+        guard e.contains("@"), e.contains(".") else { return say("Enter a valid email address.", bad: true) }
+        guard password.count >= 8 else { return say("Passwords are at least 8 characters.", bad: true) }
+        Task {
+            do {
+                if signingUp { try await account.signUp(email: e, password: password); password = ""; signingUp = false; say("Check your email for a link to confirm your account, then log in.") }
+                else { try await account.logIn(email: e, password: password); password = ""; message = nil }
+            } catch { say(error.localizedDescription, bad: true) }
+        }
+    }
+
+    private func apple(_ result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .success(let auth):
+            guard let c = auth.credential as? ASAuthorizationAppleIDCredential, let t = c.identityToken, let token = String(data: t, encoding: .utf8) else {
+                return say("Apple didn't send a sign-in token. Try again.", bad: true)
+            }
+            let name = [c.fullName?.givenName, c.fullName?.familyName].compactMap { $0 }.joined(separator: " ")
+            Task { do { try await account.signInWithApple(idToken: token, nonce: nonce, fullName: name); message = nil } catch { say(error.localizedDescription, bad: true) } }
+        case .failure(let e):
+            if (e as? ASAuthorizationError)?.code == .canceled { return }
+            say("Sign in with Apple isn't available in this build yet. Use email for now.", bad: true)
+        }
+    }
+
+    private func reset() {
+        Task {
+            do { try await account.resetPassword(email: email.trimmingCharacters(in: .whitespaces)); say("If there is an account for that email, a reset link is on its way.") }
+            catch { say(error.localizedDescription, bad: true) }
+        }
+    }
+
+    private func delete() {
+        guard armed else { armed = true; Task { try? await Task.sleep(for: .seconds(4)); armed = false }; return }
+        Task {
+            do { try await account.deleteAccount(); say("Your account is deleted.") } catch { say(error.localizedDescription, bad: true) }
+            armed = false
+        }
+    }
+}
+
+/// A capsule button: Liquid Glass on iOS and macOS 26 (prominent for the main action), a plain capsule before.
+private struct GlassButton: View {
+    let title: String, icon: String?, p: Palette
+    var prominent = false, destructive = false, soon = false, disabled = false
+    let action: () -> Void
+    init(_ title: String, icon: String? = nil, p: Palette, prominent: Bool = false, destructive: Bool = false, soon: Bool = false, disabled: Bool = false, action: @escaping () -> Void) {
+        self.title = title; self.icon = icon; self.p = p; self.prominent = prominent; self.destructive = destructive; self.soon = soon; self.disabled = disabled; self.action = action
+    }
+
+    var body: some View {
+        let label = HStack(spacing: 6) {
+            if let icon { Image(systemName: icon) }
+            Text(title).fontWeight(prominent ? .semibold : .medium)
+            if soon { Text("soon").font(.system(size: 11)).foregroundStyle(p.dim) }
+        }
+        .font(.system(size: 14)).frame(maxWidth: .infinity, minHeight: 40)
+        let fg: Color = destructive ? .red : prominent ? p.bg : p.text
+        #if compiler(>=6.2)
+        if #available(iOS 26, macOS 26, *) {
+            if prominent {
+                Button(action: action) { label.foregroundStyle(fg) }.buttonStyle(.glassProminent).tint(p.text).disabled(disabled || soon)
+            } else {
+                Button(action: action) { label.foregroundStyle(fg) }.buttonStyle(.glass).disabled(disabled || soon)
+            }
+        } else { fallback(label, fg) }
+        #else
+        fallback(label, fg)
+        #endif
+    }
+
+    private func fallback(_ label: some View, _ fg: Color) -> some View {
+        Button(action: action) {
+            label.foregroundStyle(fg)
+                .background(prominent ? p.text : p.bg, in: Capsule())
+                .overlay(Capsule().stroke(prominent ? .clear : p.dim.opacity(0.25)))
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .opacity(disabled || soon ? 0.45 : 1)
+        .disabled(disabled || soon)
+    }
+}
+
+// MARK: - Appearance
+
+/// Three cards, each a tiny Keyrate window in that appearance: a mode bar, three lines of words, one blue key.
+private struct AppearancePicker: View {
+    let p: Palette
+    @AppStorage("appearance") private var appearance = Appearance.system
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ForEach(Appearance.allCases) { a in
+                Button { appearance = a } label: {
+                    VStack(spacing: 8) {
+                        preview(a)
+                            .frame(height: 84)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(appearance == a ? p.bad : p.dim.opacity(0.25), lineWidth: appearance == a ? 2 : 1))
+                        Text(a == .system ? "Auto" : a.label).font(.system(size: 13, weight: appearance == a ? .semibold : .regular))
+                            .foregroundStyle(appearance == a ? p.text : p.dim)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(a == .system ? "Auto, follows your device" : a.label)
+                .accessibilityAddTraits(appearance == a ? .isSelected : [])
+            }
+        }
+    }
+
+    @ViewBuilder private func preview(_ a: Appearance) -> some View {
+        switch a {
+        case .light: mini(.light)
+        case .dark: mini(.dark)
+        case .system: // half and half, split down the middle
+            ZStack { mini(.light); mini(.dark).mask(HStack(spacing: 0) { Color.clear; Color.black }) }
+        }
+    }
+
+    private func mini(_ m: Palette) -> some View {
+        VStack(spacing: 6) {
+            Capsule().fill(m.chip).frame(width: 46, height: 8)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 3) { bar(m, 22, true); bar(m, 14); bar(m, 18); RoundedRectangle(cornerRadius: 2).fill(m.bad).frame(width: 8, height: 5) }
+                HStack(spacing: 3) { bar(m, 16); bar(m, 24); bar(m, 12) }
+                HStack(spacing: 3) { bar(m, 20); bar(m, 10); bar(m, 18) }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(m.bg)
+    }
+
+    private func bar(_ m: Palette, _ w: CGFloat, _ typed: Bool = false) -> some View {
+        Capsule().fill(typed ? m.text : m.word).frame(width: w, height: 5)
+    }
+}

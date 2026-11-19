@@ -31,6 +31,17 @@ import SwiftUI
         _ = try await call("/auth/signup", ["email": email, "password": password, "redirect_to": "https://keyrate.jaybulb.com/account/#confirmed"])
     }
 
+    /// Sign in with Apple: the id token from AuthenticationServices, checked by the server against Apple's keys and
+    /// the nonce we hashed into the request. Needs the Sign in with Apple capability (Joshua's team) to work.
+    func signInWithApple(idToken: String, nonce: String, fullName: String?) async throws {
+        var body = ["provider": "apple", "id_token": idToken, "nonce": nonce]
+        if let fullName, !fullName.isEmpty { body["full_name"] = fullName }
+        let data = try await call("/auth/token?grant_type=id_token", body)
+        let s = try JSONDecoder().decode(Session.self, from: data)
+        Keychain.write(keychainKey, data)
+        self.email = s.user?.email ?? "Signed in with Apple"
+    }
+
     func resetPassword(email: String) async throws {
         _ = try await call("/auth/recover", ["email": email, "redirect_to": "https://keyrate.jaybulb.com/account/"])
     }
@@ -95,88 +106,3 @@ enum Keychain {
     static func delete(_ key: String) { SecItemDelete(query(key) as CFDictionary) }
 }
 
-/// Settings, Account: log in, sign up, reset, log out, delete. Plain form controls, so it looks right on every OS.
-struct AccountPane: View {
-    /// In the window's own Settings tab the appearance picker sits above the account; the Cmd-, window has it on General.
-    var withAppearance = false
-    @AppStorage("appearance") private var appearance = Appearance.system
-    @ObservedObject private var account = Account.shared
-    @State private var email = ""
-    @State private var password = ""
-    @State private var signingUp = false
-    @State private var message: (text: String, bad: Bool)?
-    @State private var armed = false
-
-    var body: some View {
-        Form {
-            if withAppearance {
-                Section("Appearance") {
-                    Picker("Appearance", selection: $appearance) { ForEach(Appearance.allCases) { Text($0.label).tag($0) } }
-                        .pickerStyle(.segmented).labelsHidden()
-                }
-            }
-            if let who = account.email {
-                Section("Account") {
-                    LabeledContent("Signed in as", value: who)
-                    Text("Your results still stay on this device. Syncing your bests comes in a later update.")
-                        .font(.callout).foregroundStyle(.secondary)
-                }
-                Section {
-                    Button("Log Out") { Task { await account.logOut(); say("Logged out.") } }
-                    Button(armed ? "Click Again to Delete for Good" : "Delete Account", role: .destructive) { delete() }
-                }
-            } else {
-                Section {
-                    Picker("", selection: $signingUp) { Text("Log In").tag(false); Text("Sign Up").tag(true) }
-                        .pickerStyle(.segmented).labelsHidden()
-                    TextField("Email", text: $email).textContentType(.username).autocorrectionDisabled()
-                    SecureField(signingUp ? "Password (8 or more characters)" : "Password", text: $password)
-                        .textContentType(.password) // .newPassword needs macOS 14
-                        .onSubmit(go)
-                } footer: {
-                    Text("One account for Keyrate and the other Jaybulb apps.").font(.callout).foregroundStyle(.secondary)
-                }
-                Section {
-                    Button(signingUp ? "Create Account" : "Log In", action: go)
-                        .keyboardShortcut(.defaultAction)
-                        .disabled(account.busy || email.isEmpty || password.isEmpty)
-                    if !signingUp { Button("Forgot Password?") { reset() }.disabled(account.busy || email.isEmpty) }
-                }
-            }
-            if let message {
-                Text(message.text).foregroundStyle(message.bad ? Color.red : Color.accentColor).font(.callout)
-                    .accessibilityAddTraits(.updatesFrequently)
-            }
-        }
-        .formStyle(.grouped)
-    }
-
-    private func say(_ t: String, bad: Bool = false) { message = (t, bad) }
-
-    private func go() {
-        let e = email.trimmingCharacters(in: .whitespaces)
-        guard e.contains("@"), e.contains(".") else { return say("Enter a valid email address.", bad: true) }
-        guard password.count >= 8 else { return say("Passwords are at least 8 characters.", bad: true) }
-        Task {
-            do {
-                if signingUp { try await Account.shared.signUp(email: e, password: password); password = ""; say("Check your email for a link to confirm your account, then log in."); signingUp = false }
-                else { try await Account.shared.logIn(email: e, password: password); password = ""; message = nil }
-            } catch { say(error.localizedDescription, bad: true) }
-        }
-    }
-
-    private func reset() {
-        Task {
-            do { try await Account.shared.resetPassword(email: email.trimmingCharacters(in: .whitespaces)); say("If there is an account for that email, a reset link is on its way.") }
-            catch { say(error.localizedDescription, bad: true) }
-        }
-    }
-
-    private func delete() {
-        guard armed else { armed = true; Task { try? await Task.sleep(for: .seconds(4)); armed = false }; return }
-        Task {
-            do { try await Account.shared.deleteAccount(); say("Your account is deleted.") } catch { say(error.localizedDescription, bad: true) }
-            armed = false
-        }
-    }
-}

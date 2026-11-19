@@ -1,24 +1,10 @@
 import SwiftUI
 
-/// The Mac Settings window (Cmd-,): appearance and your account.
+/// The Mac Settings window (Cmd-,): the same screen as the Settings tab, account first and appearance below.
 struct SettingsView: View {
     @AppStorage("appearance") private var appearance = Appearance.system
-
     var body: some View {
-        TabView {
-            Form {
-                Picker("Appearance", selection: $appearance) {
-                    ForEach(Appearance.allCases) { Text($0.label).tag($0) }
-                }
-                .pickerStyle(.inline)
-            }
-            .padding(24)
-            .tabItem { Label("General", systemImage: "gearshape") }
-            AccountPane()
-                .tabItem { Label("Account", systemImage: "person.crop.circle") }
-        }
-        .frame(width: 480)
-        .preferredColorScheme(appearance.scheme)
+        SettingsScreen().frame(width: 560, height: 680).preferredColorScheme(appearance.scheme)
     }
 }
 
