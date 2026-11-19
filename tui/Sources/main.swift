@@ -54,7 +54,8 @@ func restart(_ index: Int? = nil) {
 
 func width() -> Int {
     var w = winsize()
-    return ioctl(STDOUT_FILENO, UInt(TIOCGWINSZ), &w) // UInt(): Int32 on Linux, UInt on macOS == 0 && w.ws_col > 20 ? min(Int(w.ws_col) - 4, 80) : 76
+    // UInt(): TIOCGWINSZ is Int32 on Linux and UInt on macOS
+    return ioctl(STDOUT_FILENO, UInt(TIOCGWINSZ), &w) == 0 && w.ws_col > 20 ? min(Int(w.ws_col) - 4, 80) : 76
 }
 
 /// The words, coloured as typed: right in plain ink, wrong in red, the rest dim; three lines around the current one.
