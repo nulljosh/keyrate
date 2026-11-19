@@ -14,7 +14,7 @@ struct ProgressScreen: View {
         GeometryReader { geo in
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 180), spacing: 12)], spacing: 12) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: geo.size.width < 520 ? 1 : 3), spacing: 12) { // three tiles share the row
                         tile("Best", bests.map(\.1).max().map { "\($0)" } ?? "–", unit: "wpm")
                         tile(recent.isEmpty ? "Average" : "Average, last \(recent.count)", recent.isEmpty ? "–" : "\(recent.reduce(0, +) / recent.count)", unit: "wpm")
                         tile("Tests", "\(tests)", unit: nil)
@@ -27,7 +27,7 @@ struct ProgressScreen: View {
                         .padding(20).frame(maxWidth: .infinity).background(p.chip, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
                     }
                     section("Best per mode") {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12)], spacing: 12) {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 116), spacing: 12)], spacing: 12) { // all seven modes on one row when wide
                             ForEach(modes.indices, id: \.self) { i in
                                 let m = modes[i], v = Int(store.get(m.key) ?? "")
                                 VStack(alignment: .leading, spacing: 4) {

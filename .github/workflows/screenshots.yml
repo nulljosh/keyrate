@@ -1,0 +1,69 @@
+name: screenshots
+# QA shots of the phone apps, which can't run on Dad's Mac: an iPhone simulator on a Mac runner, an Android emulator on
+# Linux. Light and dark, each tab. The images come back as an artifact named screenshots-ios / screenshots-android.
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - name: Build for the simulator
+        working-directory: apple
+        run: |
+          xcodegen generate -q
+          xcodebuild -scheme Keyrate -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath dd CODE_SIGNING_ALLOWED=NO build -quiet
+      - name: Shoot
+        run: |
+          set -e
+          DEV=$(xcrun simctl list devices available | grep -E "iPhone 1[5-9]( Pro)? \(" | head -1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/')
+          echo "device $DEV"
+          xcrun simctl boot "$DEV"; xcrun simctl bootstatus "$DEV" -b
+          APP=$(find apple/dd/Build/Products -name "*.app" -path "*iphonesimulator*" | head -1)
+          xcrun simctl install "$DEV" "$APP"
+          mkdir -p shots
+          for look in light dark; do
+            xcrun simctl ui "$DEV" appearance $look
+            for tab in test progress settings; do
+              xcrun simctl terminate "$DEV" com.nulljosh.keyrate || true
+              xcrun simctl launch "$DEV" com.nulljosh.keyrate -openTab $tab -shot none
+              sleep 6
+              xcrun simctl io "$DEV" screenshot "shots/ios-$look-$tab.png"
+            done
+          done
+      - uses: actions/upload-artifact@v4
+        with: { name: screenshots-ios, path: shots }
+
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew :composeApp:assembleDebug
+        working-directory: kmp
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_7
+          disable-animations: true
+          script: |
+            adb install -r kmp/composeApp/build/outputs/apk/debug/*.apk
+            mkdir -p shots
+            adb shell cmd uimode night no; adb shell am start -n com.nulljosh.keyrate.android/com.nulljosh.keyrate.MainActivity; sleep 8; adb exec-out screencap -p > shots/android-light.png
+            adb shell cmd uimode night yes; adb shell am force-stop com.nulljosh.keyrate.android; adb shell am start -n com.nulljosh.keyrate.android/com.nulljosh.keyrate.MainActivity; sleep 8; adb exec-out screencap -p > shots/android-dark.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: screenshots-android, path: shots }
