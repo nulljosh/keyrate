@@ -19,6 +19,7 @@ jobs:
         include:
           - { os: ubuntu-latest, task: ":composeApp:packageDeb :composeApp:assembleDebug" }
           - { os: windows-latest, task: ":composeApp:packageMsi" }
+          - { os: macos-15, task: "" }
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     env:
@@ -28,16 +29,28 @@ jobs:
       - uses: actions/checkout@v4
         with: { ref: "${{ inputs.tag || github.ref }}" }
       - uses: actions/setup-java@v4
+        if: matrix.task != ''
         with: { distribution: temurin, java-version: 21 }
       - uses: gradle/actions/setup-gradle@v4
+        if: matrix.task != ''
       - run: ./gradlew ${{ matrix.task }}
+        if: matrix.task != ''
         working-directory: kmp
         shell: bash
+      # The SwiftUI Mac app, ad-hoc signed and zipped. Not notarized until Joshua's Developer ID is in CI secrets,
+      # so the first launch needs right-click, Open.
+      - name: Mac app
+        if: runner.os == 'macOS'
+        run: |
+          brew install xcodegen
+          cd apple && xcodegen generate -q
+          xcodebuild -scheme Keyrate -configuration Release -destination 'platform=macOS' -derivedDataPath dd CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= build -quiet
+          ditto -c -k --keepParent dd/Build/Products/Release/Keyrate.app "../Keyrate-${TAG#v}-mac.zip"
       - name: Attach to the release
         shell: bash
         run: |
           shopt -s nullglob globstar
-          files=(kmp/composeApp/build/compose/binaries/**/*.deb kmp/composeApp/build/compose/binaries/**/*.msi)
+          files=(kmp/composeApp/build/compose/binaries/**/*.deb kmp/composeApp/build/compose/binaries/**/*.msi Keyrate-*-mac.zip)
           for apk in kmp/composeApp/build/outputs/apk/debug/*.apk; do cp "$apk" "Keyrate-${TAG#v}-android-debug.apk"; files+=("Keyrate-${TAG#v}-android-debug.apk"); done
           ls -la "${files[@]}"
           gh release upload "$TAG" "${files[@]}" --clobber
