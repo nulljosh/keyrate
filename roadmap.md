@@ -34,7 +34,8 @@ Now: **2.5.0** (2026-11-19, Mac and iPhone). Grade 2026-11-19: C+ overall. Web B
 - [ ] Linux build of the TUI (Swift on Linux) for the Pi and servers (CI job tui-linux added)
 
 ## 2.7.0: Everywhere
-- [ ] joshuatree / Raspberry Pi: fix the Makefile path (now `web/app/index.html`), regenerate app_keyrate.h, check it on the Pi
+- [x] joshuatree: serves the 2.5.0 test as one offline file (scripts/single.mjs), Makefile path fixed
+- [ ] Check it on the Pi itself (`keyrate` in the joshuatree shell, open :8080 from another device)
 - [ ] Android: emulator walk, soft keyboard, release build under 10 MB, Play internal test (Joshua signs in)
 - [ ] Desktop: Linux .deb and Windows .msi built on CI; Wayland, X11 and Windows font checks
 
