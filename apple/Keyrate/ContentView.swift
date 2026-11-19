@@ -389,9 +389,9 @@ struct WhatsNew: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("What's new in Keyrate \(version)").font(.system(size: 22, weight: .bold))
-            item("keyboard", "Your weak keys, kept", "Missed keys are saved across runs. See them in Settings, Progress.")
-            item("circle.lefthalf.filled", "Light, dark or auto", "Pick an appearance, or follow your Mac.")
-            item("desktopcomputer", "Runs on older Macs", "Keyrate now works back to macOS Ventura.")
+            item("scope", "Drill mode", "25 words built from the keys you miss most.")
+            item("person.crop.circle", "Settings and an account", "Log in with Apple or email. Pick light, dark or auto.")
+            item("chart.line.uptrend.xyaxis", "A new Progress tab", "Your bests, your trend and a heat map of the keys you miss.")
             Button("Continue") { dismiss() }.keyboardShortcut(.defaultAction).frame(maxWidth: .infinity)
         }
         .padding(28).frame(width: 420)

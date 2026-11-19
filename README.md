@@ -28,7 +28,7 @@ A typing test that shows you which keys slow you down. Free at [keyrate.jaybulb.
 | Where | Folder | Status |
 |---|---|---|
 | Web | `web/` | Live, 2.4.0 |
-| iPhone, iPad, Mac | `apple/` | 2.3.0; resubmitting to the App Store |
+| iPhone, iPad, Mac | `apple/` | 2.5.0; resubmitting to the App Store |
 | Android, Windows, Linux | `kmp/` | Builds, not released |
 | Terminal | `tui/` | Builds |
 

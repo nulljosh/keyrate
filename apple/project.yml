@@ -23,7 +23,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nulljosh.keyrate
         SUPPORTED_PLATFORMS: "iphoneos iphonesimulator macosx" # Xcode 15 needs the list spelled out to offer the simulator
-        MARKETING_VERSION: "2.3.0"
+        MARKETING_VERSION: "2.5.0"
         CURRENT_PROJECT_VERSION: 8
         CODE_SIGN_STYLE: Automatic
         GENERATE_INFOPLIST_FILE: YES

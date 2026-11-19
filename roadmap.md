@@ -2,7 +2,7 @@
 
 Semver. Each minor ships on the web first, then Apple, Kotlin and the terminal. A release is done when `scripts/check.sh` is green, it is deployed, and it has QA screenshots. The history of finished steps lives in `git log`.
 
-Now: **2.4.0** (2026-11-19, web). Grade 2026-11-19: C+ overall. Web B+, landing B, Mac B, iOS C+, Android D, desktop D, joshuatree/Pi D, docs C.
+Now: **2.5.0** (2026-11-19, Mac and iPhone). Grade 2026-11-19: C+ overall. Web B+, landing B, Mac B, iOS C+, Android D, desktop D, joshuatree/Pi D, docs C.
 
 ## 2.4.0: Landing and web accounts (shipped 2026-11-19)
 - [x] Top bar: logo left, Log in and Sign up right (Account when signed in)
@@ -15,11 +15,14 @@ Now: **2.4.0** (2026-11-19, web). Grade 2026-11-19: C+ overall. Web B+, landing 
 - [x] Test: a key in flight when the run ends no longer restarts it (the result holds 800 ms)
 - [ ] Docs: architecture.svg redraw, ARCHITECTURE.md and LOOP-HANDOFF.md refresh, a user help page
 
-## 2.5.0: Mac and iPhone
-- [ ] Mac UI pass to A+ with QA screenshots (macOS 13 here, 26 upstairs)
-- [ ] Settings, Account tab: Sign in with Apple, Google and GitHub (ASWebAuthenticationSession + PKCE), email; tokens in Keychain only
+## 2.5.0: Mac and iPhone (shipped 2026-11-19; App Store and signing items wait on Joshua's Mac)
+- [x] Mac UI pass to A+ with QA screenshots (macOS 13 here, 26 upstairs)
+- [x] Settings: account (Apple and email; session in the Keychain), appearance previews; Google and GitHub buttons say soon
+- [x] Progress tab: tiles, trend, best per mode, heat keyboard, leaderboard card; every screen follows the window
+- [ ] Google and GitHub sign-in (OAuth apps under Joshua's accounts, GitHub OAuth in jaybulb-api)
+- [ ] Sign in with Apple entitlement (needs Joshua's team signing)
 - [ ] jaybulb-api: GitHub OAuth
-- [ ] Drill mode in the Apple app
+- [x] Drill mode in the Apple app
 - [ ] History: last 20 runs and the keys you miss across them (also the answer to 4.3(a))
 - [ ] GitHub releases: a notarized Mac .dmg each tag; iOS links to the App Store or TestFlight
 - [ ] App Store: resubmit iOS and Mac with the changes above and a reply to 4.3(a). Expedited review is for urgent bug fixes, not rejections, so it doesn't apply
