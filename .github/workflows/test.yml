@@ -47,6 +47,14 @@ jobs:
       - run: swift build -c release
         working-directory: tui
 
+  # The terminal app builds and passes its checks on Linux too (servers, the Pi).
+  tui-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift build -c release --package-path tui && tui/.build/release/keyrate-tui --check
+
   # Every file the README points at exists.
   docs:
     runs-on: ubuntu-latest

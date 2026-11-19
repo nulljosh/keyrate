@@ -30,8 +30,8 @@ Now: **2.5.0** (2026-11-19, Mac and iPhone). Grade 2026-11-19: C+ overall. Web B
 
 ## 2.6.0: Terminal
 - [ ] `keyrate` TUI made live (tui/, SwiftPM): the test, the result card, the five keys
-- [ ] `brew install nulljosh/tap/keyrate` from homebrew-tap, built on release
-- [ ] Linux build of the TUI (Swift on Linux) for the Pi and servers
+- [x] `brew install nulljosh/tap/keyrate` (homebrew-tap e59f11b, builds 2.5.0 from source; keyrate-tui renamed)
+- [ ] Linux build of the TUI (Swift on Linux) for the Pi and servers (CI job tui-linux added)
 
 ## 2.7.0: Everywhere
 - [ ] joshuatree / Raspberry Pi: fix the Makefile path (now `web/app/index.html`), regenerate app_keyrate.h, check it on the Pi
