@@ -2,7 +2,7 @@
 
 Semver. Each minor ships on the web first, then Apple, Kotlin and the terminal. A release is done when `scripts/check.sh` is green, it is deployed, and it has QA screenshots. The history of finished steps lives in `git log`.
 
-Now: **2.5.0** (2026-11-19, Mac and iPhone). Grade 2026-11-19: C+ overall. Web B+, landing B, Mac B, iOS C+, Android D, desktop D, joshuatree/Pi D, docs C.
+Now: **2.5.1** (2026-11-19: the terminal app builds on Linux; brew on macOS and Linux). Grade 2026-11-19: C+ overall. Web B+, landing B, Mac B, iOS C+, Android D, desktop D, joshuatree/Pi D, docs C.
 
 ## 2.4.0: Landing and web accounts (shipped 2026-11-19)
 - [x] Top bar: logo left, Log in and Sign up right (Account when signed in)
