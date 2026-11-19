@@ -9,15 +9,30 @@ struct SettingsScreen: View {
     @Environment(\.colorScheme) private var scheme
     private var p: Palette { scheme == .dark ? .dark : .light }
 
+    /// Follows the window: two columns when there's room (account left, appearance slices right), one column
+    /// otherwise. Margins grow with the width and the content sits in the middle of the height.
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 40) {
-                section("Account") { AccountCard(p: p) }
-                section("Appearance") { AppearancePicker(p: p) }
+        GeometryReader { geo in
+            let wide = geo.size.width >= 880
+            ScrollView {
+                Group {
+                    if wide {
+                        HStack(alignment: .top, spacing: 40) {
+                            section("Account") { AccountCard(p: p) }.frame(maxWidth: 560)
+                            section("Appearance") { AppearancePicker(p: p, vertical: true) }.frame(width: 260)
+                        }
+                    } else {
+                        VStack(alignment: .leading, spacing: 40) {
+                            section("Account") { AccountCard(p: p) }
+                            section("Appearance") { AppearancePicker(p: p, vertical: false) }
+                        }
+                        .frame(maxWidth: 560)
+                    }
+                }
+                .padding(.horizontal, max(24, geo.size.width * 0.06))
+                .padding(.top, 56).padding(.bottom, 104) // clear of the traffic lights and the bottom bar
+                .frame(maxWidth: .infinity, minHeight: geo.size.height)
             }
-            .frame(maxWidth: 520)
-            .padding(.horizontal, 24).padding(.top, 48).padding(.bottom, 96)
-            .frame(maxWidth: .infinity)
         }
         .background(p.bg.ignoresSafeArea())
     }
@@ -82,13 +97,16 @@ private struct AccountCard: View {
 
             // Apple, Google, GitHub
             VStack(spacing: 8) {
-                SignInWithAppleButton(signingUp ? .signUp : .signIn) { req in
-                    nonce = UUID().uuidString
-                    req.requestedScopes = [.email, .fullName]
-                    req.nonce = SHA256.hash(data: Data(nonce.utf8)).map { String(format: "%02x", $0) }.joined()
-                } onCompletion: { result in apple(result) }
-                .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
-                .frame(height: 40).clipShape(Capsule())
+                // Our own capsule, full width like the rest (the stock button won't stretch on macOS 13); same request
+                Button { startApple() } label: {
+                    HStack(spacing: 6) { Image(systemName: "applelogo"); Text(signingUp ? "Sign up with Apple" : "Sign in with Apple").fontWeight(.semibold) }
+                        .font(.system(size: 14)).foregroundStyle(scheme == .dark ? Color.black : Color.white)
+                        .frame(maxWidth: .infinity, minHeight: 40)
+                        .background(scheme == .dark ? Color.white : Color.black, in: Capsule())
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(signingUp ? "Sign up with Apple" : "Sign in with Apple")
                 HStack(spacing: 8) {
                     GlassButton("Google", icon: "g.circle", p: p, soon: true) {}
                     GlassButton("GitHub", icon: "chevron.left.forwardslash.chevron.right", p: p, soon: true) {}
@@ -154,6 +172,17 @@ private struct AccountCard: View {
         }
     }
 
+    @State private var appleFlow: AppleFlow?
+    private func startApple() {
+        nonce = UUID().uuidString
+        let req = ASAuthorizationAppleIDProvider().createRequest()
+        req.requestedScopes = [.email, .fullName]
+        req.nonce = SHA256.hash(data: Data(nonce.utf8)).map { String(format: "%02x", $0) }.joined()
+        let flow = AppleFlow { apple($0) }
+        appleFlow = flow
+        flow.run(req)
+    }
+
     private func apple(_ result: Result<ASAuthorization, Error>) {
         switch result {
         case .success(let auth):
@@ -181,6 +210,24 @@ private struct AccountCard: View {
             do { try await account.deleteAccount(); say("Your account is deleted.") } catch { say(error.localizedDescription, bad: true) }
             armed = false
         }
+    }
+}
+
+/// Runs one Sign in with Apple request and hands back the result; held in state until it finishes.
+private final class AppleFlow: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    let done: (Result<ASAuthorization, Error>) -> Void
+    init(_ done: @escaping (Result<ASAuthorization, Error>) -> Void) { self.done = done }
+    func run(_ req: ASAuthorizationAppleIDRequest) {
+        let c = ASAuthorizationController(authorizationRequests: [req]); c.delegate = self; c.presentationContextProvider = self; c.performRequests()
+    }
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization a: ASAuthorization) { done(.success(a)) }
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError e: Error) { done(.failure(e)) }
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        #if os(macOS)
+        NSApp.keyWindow ?? NSApp.windows.first ?? ASPresentationAnchor()
+        #else
+        UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }.first ?? ASPresentationAnchor()
+        #endif
     }
 }
 
@@ -232,19 +279,21 @@ private struct GlassButton: View {
 /// Three cards, each a tiny Keyrate window in that appearance: a mode bar, three lines of words, one blue key.
 private struct AppearancePicker: View {
     let p: Palette
+    var vertical = true
     @AppStorage("appearance") private var appearance = Appearance.system
 
     var body: some View {
-        HStack(spacing: 12) {
+        let layout = vertical ? AnyLayout(VStackLayout(spacing: 8)) : AnyLayout(HStackLayout(spacing: 8))
+        layout {
             ForEach(Appearance.allCases) { a in
                 Button { appearance = a } label: {
-                    VStack(spacing: 8) {
-                        preview(a)
-                            .frame(height: 84)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(appearance == a ? p.bad : p.dim.opacity(0.25), lineWidth: appearance == a ? 2 : 1))
+                    HStack(spacing: 12) {
                         Text(a == .system ? "Auto" : a.label).font(.system(size: 13, weight: appearance == a ? .semibold : .regular))
-                            .foregroundStyle(appearance == a ? p.text : p.dim)
+                            .foregroundStyle(appearance == a ? p.text : p.dim).frame(width: 40, alignment: .leading)
+                        preview(a)
+                            .frame(height: 40)
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(appearance == a ? p.bad : p.dim.opacity(0.25), lineWidth: appearance == a ? 2 : 1))
                     }
                     .contentShape(Rectangle())
                 }
@@ -264,15 +313,17 @@ private struct AppearancePicker: View {
         }
     }
 
+    /// A slice of the test: one line of words across the whole width, the typed part solid, one missed key blue.
     private func mini(_ m: Palette) -> some View {
-        VStack(spacing: 6) {
-            Capsule().fill(m.chip).frame(width: 46, height: 8)
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 3) { bar(m, 22, true); bar(m, 14); bar(m, 18); RoundedRectangle(cornerRadius: 2).fill(m.bad).frame(width: 8, height: 5) }
-                HStack(spacing: 3) { bar(m, 16); bar(m, 24); bar(m, 12) }
-                HStack(spacing: 3) { bar(m, 20); bar(m, 10); bar(m, 18) }
-            }
+        // more words than fit, clipped: the line runs edge to edge, so Auto shows it on both halves
+        HStack(spacing: 4) {
+            bar(m, 18, true); bar(m, 12, true); RoundedRectangle(cornerRadius: 2).fill(m.bad).frame(width: 8, height: 6)
+            ForEach(Array([20, 14, 22, 10, 16, 24, 12, 18, 14, 20, 10, 22, 16].enumerated()), id: \.offset) { bar(m, CGFloat($0.element)) }
         }
+        .fixedSize()
+        .padding(.leading, 12)
+        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading) // minWidth 0: never wider than its slot
+        .clipped()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(m.bg)
     }

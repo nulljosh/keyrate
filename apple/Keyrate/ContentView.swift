@@ -44,8 +44,11 @@ struct ContentView: View {
     /// iPad (regular width) fills the 832 point column with Mac sized words; iPhone keeps them smaller.
     private var wordSize: CGFloat { (sizeClass == .regular ? 28 : 22) * min(typeScale, 1.6) }
     #else
-    private var wordSize: CGFloat { 26 * min(typeScale, 1.6) }
+    /// Words grow with the window: 22 pt in a small window up to 40 pt on a big screen, times the text size setting.
+    private var wordSize: CGFloat { min(max(area.width / 36, 22), 40) * min(typeScale, 1.6) }
     #endif
+    /// The window's content size, measured below, so the test scales and centres in any window.
+    @State private var area = CGSize(width: 980, height: 720)
     /// Tab and Return work everywhere except iOS 16, where only the restart chip does.
     private var keyHints: Bool {
         #if os(iOS)
@@ -88,15 +91,16 @@ struct ContentView: View {
                 }
             }
             .padding(24)
-            .frame(maxWidth: .infinity, minHeight: 600)
+            .frame(maxWidth: .infinity, minHeight: max(area.height - 72, 400)) // centred in the window, clear of the bars
         }
         .safeAreaInset(edge: .top) { // functional layer: the only glass. A compact centred pill on the Mac, as on the web
             #if os(macOS)
-            modeBar.padding(6).fixedSize().glassBar().frame(maxWidth: .infinity).padding(.top, 14)
+            modeBar.padding(4).fixedSize().glassBar().frame(maxWidth: .infinity).padding(.top, 20)
             #else
             modeBar.padding(6).glassBar().padding(.horizontal, 16).padding(.top, 8)
             #endif
         }
+        .background(GeometryReader { g in Color.clear.onAppear { area = g.size }.onChange(of: g.size) { area = $0 } })
         .background(p.bg.ignoresSafeArea())
         .overlay { if splash { Splash(shown: $splash, bg: p.bg) } }
         .onAppear { UserDefaults.standard.set(Self.version, forKey: "seenVersion") }
@@ -132,7 +136,7 @@ struct ContentView: View {
                 Text(attributed(k)).font(.system(size: wordSize)).fixedSize()
             }
         }
-        .frame(maxWidth: 832)
+        .frame(maxWidth: min(max(area.width * 0.82, 320), 1200))
         .clipped()
         .opacity(session.done || !focus ? 0.35 : 1)
         .contentShape(Rectangle())
@@ -188,7 +192,7 @@ struct ContentView: View {
             } label: {
                 Label(appearance == .system ? "auto" : appearance.rawValue, systemImage: "circle.lefthalf.filled")
                     .labelStyle(.titleAndIcon).font(.system(size: 14)).foregroundStyle(p.dim)
-                    .padding(.horizontal, 12).padding(.vertical, 8).contentShape(Capsule())
+                    .padding(.horizontal, 14).frame(minHeight: 36).contentShape(Capsule())
             }
             .buttonStyle(.plain)
             .help("Appearance: auto follows your device")
@@ -203,7 +207,7 @@ struct ContentView: View {
     private func chip(_ label: String, on: Bool, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(label).font(.system(size: 14)).foregroundStyle(on ? p.text : p.dim)
-                .padding(.horizontal, 12).padding(.vertical, 8)
+                .padding(.horizontal, 14).frame(minHeight: 36)
                 .background(on ? p.chip : .clear, in: Capsule())
                 .contentShape(Capsule())
         }
@@ -213,7 +217,7 @@ struct ContentView: View {
     private func resultView(_ r: Stats) -> some View {
         VStack(spacing: 12) {
             HStack(alignment: .lastTextBaseline, spacing: 6) {
-                Text("\(r.wpm)").font(.system(size: 64, weight: .semibold)).foregroundStyle(p.text)
+                Text("\(r.wpm)").font(.system(size: wordSize * 2.5, weight: .semibold)).foregroundStyle(p.text)
                 Text("wpm").font(.system(size: 16)).foregroundStyle(p.dim)
             }
             HStack(spacing: 24) {
@@ -319,7 +323,7 @@ extension View {
     @ViewBuilder func glassBar() -> some View {
         // Liquid Glass needs the iOS 26 SDK (Xcode 26); older toolchains build the material fallback only.
         #if compiler(>=6.2)
-        if #available(iOS 26, macOS 26, *) { glassEffect(.regular, in: RoundedRectangle(cornerRadius: 24)) } else { background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24)) }
+        if #available(iOS 26, macOS 26, *) { glassEffect(.regular, in: RoundedRectangle(cornerRadius: 24)) } else { background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous)) }
         #else
         background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24))
         #endif

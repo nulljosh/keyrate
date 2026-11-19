@@ -12,21 +12,21 @@ struct RootView: View {
         Group {
             switch tab {
             case .test: ContentView()
-            case .progress: ScrollView { ProgressPane().frame(maxWidth: 560).padding(.bottom, 72) }.frame(maxWidth: .infinity)
+            case .progress: ProgressScreen()
             case .settings: SettingsScreen()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom) {
-            HStack(spacing: 4) {
+            HStack(spacing: 2) {
                 item("Test", "keyboard", .test)
                 item("Progress", "chart.line.uptrend.xyaxis", .progress)
                 item("Settings", "gearshape", .settings)
             }
-            .padding(6)
+            .padding(4) // 4 pt inset: the selected capsule sits concentric inside the bar
             .fixedSize()
             .glassBar()
-            .padding(.bottom, 16)
+            .padding(.bottom, 20)
         }
         #if os(macOS)
         .frame(minWidth: 720, minHeight: 560)
@@ -37,7 +37,7 @@ struct RootView: View {
         Button { tab = t } label: {
             Label(title, systemImage: icon).font(.system(size: 13, weight: tab == t ? .semibold : .regular))
                 .foregroundStyle(tab == t ? .primary : .secondary)
-                .padding(.horizontal, 14).frame(minHeight: 32)
+                .padding(.horizontal, 16).frame(minHeight: 36)
                 .background(tab == t ? Color.primary.opacity(0.08) : .clear, in: Capsule())
                 .contentShape(Capsule())
         }
