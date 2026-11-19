@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The Mac Settings window (Cmd-,): appearance, and your progress from what this device has saved.
+/// The Mac Settings window (Cmd-,): appearance and your account.
 struct SettingsView: View {
     @AppStorage("appearance") private var appearance = Appearance.system
 
@@ -14,7 +14,8 @@ struct SettingsView: View {
             }
             .padding(24)
             .tabItem { Label("General", systemImage: "gearshape") }
-
+            AccountPane()
+                .tabItem { Label("Account", systemImage: "person.crop.circle") }
         }
         .frame(width: 480)
         .preferredColorScheme(appearance.scheme)

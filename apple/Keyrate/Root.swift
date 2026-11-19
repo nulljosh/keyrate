@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// The window: the test, or your progress, picked from a floating bar at the bottom. The bar is the functional layer,
+/// The window: the test, your progress or settings (appearance and account), picked from a floating bar at the bottom. The bar is the functional layer,
 /// so it gets the same glass as the mode bar (Liquid Glass on macOS 26, the regular material before) and the content
 /// scrolls under it. Content itself never gets glass.
 struct RootView: View {
-    enum Tab { case test, progress }
+    enum Tab { case test, progress, settings }
     @State private var tab = Tab.test
 
     var body: some View {
@@ -12,6 +12,7 @@ struct RootView: View {
             switch tab {
             case .test: ContentView()
             case .progress: ScrollView { ProgressPane().frame(maxWidth: 560).padding(.bottom, 72) }.frame(maxWidth: .infinity)
+            case .settings: AccountPane(withAppearance: true).frame(maxWidth: 560).padding(.top, 24).padding(.bottom, 72).frame(maxWidth: .infinity)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -19,6 +20,7 @@ struct RootView: View {
             HStack(spacing: 4) {
                 item("Test", "keyboard", .test)
                 item("Progress", "chart.line.uptrend.xyaxis", .progress)
+                item("Settings", "gearshape", .settings)
             }
             .padding(6)
             .fixedSize()
@@ -39,7 +41,7 @@ struct RootView: View {
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)
-        .keyboardShortcut(t == .test ? "1" : "2", modifiers: [.command, .option])
+        .keyboardShortcut(t == .test ? "1" : t == .progress ? "2" : "3", modifiers: [.command, .option])
         .accessibilityAddTraits(tab == t ? .isSelected : [])
     }
 }
