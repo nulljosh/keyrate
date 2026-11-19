@@ -2,8 +2,10 @@ name: test
 on:
   push:
     branches: [main]
+    paths-ignore: ['**.md', 'docs/**', 'store/**', 'LICENSE']
   pull_request:
     branches: [main]
+    paths-ignore: ['**.md', 'docs/**', 'store/**', 'LICENSE']
   workflow_dispatch:
 
 concurrency:
@@ -29,8 +31,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 21 }
-      - run: ./gradlew :shared:jvmTest --no-daemon
+      - uses: gradle/actions/setup-gradle@v4 # caches the wrapper and dependencies between runs
+      - run: ./gradlew :shared:jvmTest
         working-directory: kmp
+
+  # The Swift port (iPhone, iPad, Mac) and the terminal app against the same vectors.
+  swift:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - run: xcodegen generate -q && xcodebuild test -quiet -scheme Keyrate -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
+        working-directory: apple
+      - run: swift build -c release
+        working-directory: tui
 
   # Every file the README points at exists.
   docs:

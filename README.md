@@ -1,6 +1,6 @@
 <img src="web/icon.svg" width="80">
 
-![version](https://img.shields.io/badge/version-v2.4.0-blue) [![tests](https://github.com/nulljosh/keyrate/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/nulljosh/keyrate/actions/workflows/test.yml) ![license](https://img.shields.io/badge/license-Apache%202.0-blue)
+![version](https://img.shields.io/github/v/release/nulljosh/keyrate?label=version) [![tests](https://github.com/nulljosh/keyrate/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/nulljosh/keyrate/actions/workflows/test.yml) ![license](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 A typing test that shows you which keys slow you down.
 
