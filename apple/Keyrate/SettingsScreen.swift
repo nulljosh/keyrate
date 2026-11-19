@@ -309,7 +309,7 @@ private struct AppearancePicker: View {
         case .light: mini(.light)
         case .dark: mini(.dark)
         case .system: // half and half, split down the middle
-            ZStack { mini(.light); mini(.dark).mask(HStack(spacing: 0) { Color.clear; Color.black }) }
+            HStack(spacing: 0) { mini(.light); mini(.dark) } // each half its own slice, so both show words
         }
     }
 
