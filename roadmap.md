@@ -59,6 +59,17 @@ Now: **2.4.0** (2026-11-19, web). Grade 2026-11-19: C+ overall. Web B+, landing 
 ## 4.0.0: Races
 - [ ] Live races and matchmaking on Durable Objects
 
+## The long road (one line each; a major only when stored data or the scoring changes)
+- 5.0.0: Coach. A plan built from your weak keys: daily drills, streaks, a weekly report
+- 6.0.0: Keyboards. Layouts (Dvorak, Colemak, AZERTY, QWERTZ), split and ortho boards drawn as you own them
+- 7.0.0: Code. Typing tests in real code (Swift, Kotlin, JS, Python) with brackets and indents scored
+- 8.0.0: Classroom. Teachers make a class, set a test, see the room's weak keys (no student tracking beyond the class)
+- 9.0.0: Hardware. Read a USB or Bluetooth keyboard's own key events; per-switch timing on the Pi (joshuatree)
+- 10.0.0: Open scoring. The scoring spec and vectors as a standard other apps can pass
+- 20.0.0: Every language Keyrate's word lists cover with public domain text, typed in its own script
+- 50.0.0: Ten years of your typing: the long graph, exportable, yours
+- 100.0.0: Keyrate on every screen with a keyboard, the same score on all of them
+
 ## Launch (Joshua)
 Apple login and 2FA, Play sign-in, signing and notarizing, store submits. Product Hunt (a Tuesday), Show HN, r/typing, r/MechanicalKeyboards, r/macapps.
 
