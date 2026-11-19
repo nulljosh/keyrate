@@ -310,7 +310,9 @@ struct ContentView: View {
     #endif
 
     private func restart() {
-        session = Session(mode: mode, punct: punct, avoid: lastQuote)
+        // drill: words built from the five keys you miss most on this device
+        let weak = savedMisses(store).sorted { $0.value > $1.value }.prefix(5).map(\.key)
+        session = Session(mode: mode, punct: punct, avoid: lastQuote, pool: mode.kind == .drill ? drillPool(words, weak: weak) : nil)
         if mode.kind == .quote { lastQuote = session.target.joined(separator: " ") }
         input = ""
         best = 0

@@ -1,6 +1,6 @@
 import Foundation
 
-enum Kind { case time, words, quote }
+enum Kind { case time, words, quote, drill }
 
 struct Mode: Equatable {
     let kind: Kind
@@ -10,6 +10,7 @@ struct Mode: Equatable {
         case .time: "\(n)"
         case .words: "\(n) words"
         case .quote: "quote"
+        case .drill: "drill"
         }
     }
     var key: String { "best:\(kind):\(n)" }
@@ -17,8 +18,18 @@ struct Mode: Equatable {
 
 let modes = [
     Mode(kind: .time, n: 15), Mode(kind: .time, n: 30), Mode(kind: .time, n: 60),
-    Mode(kind: .words, n: 25), Mode(kind: .words, n: 50), Mode(kind: .quote),
+    Mode(kind: .words, n: 25), Mode(kind: .words, n: 50), Mode(kind: .quote), Mode(kind: .drill, n: 25),
 ]
+
+/// Drill: words heavy in the letters you miss, ranked by the share of each word that is weak (score.js drillPool).
+/// No weak letters yet, or too few matching words: the plain list.
+func drillPool(_ all: [String], weak: [String], min: Int = 60) -> [String] {
+    let set = Set(weak.filter { $0.count == 1 && $0.first!.isLetter })
+    guard !set.isEmpty else { return all }
+    let ranked = all.map { w in (w, Double(w.filter { set.contains(String($0)) }.count) / Double(w.count)) }
+        .filter { $0.1 > 0 }.sorted { $0.1 > $1.1 }
+    return ranked.count >= min ? ranked.prefix(Swift.max(min, (ranked.count + 1) / 2)).map(\.0) : all
+}
 
 /// Dice the tests can seed. `int(k)` is 0..<k, `double()` is 0..<1.
 struct Dice {
@@ -48,6 +59,7 @@ final class Session {
     let mode: Mode
     private let punct: Bool
     private let dice: Dice
+    private let pool: [String]
     private(set) var target: [String] = []
     private(set) var typed: [String] = [""]
     private(set) var done = false
@@ -69,15 +81,17 @@ final class Session {
     private(set) var scoredSeconds = 0.0
     var elapsed: String { mode.kind == .time ? "\(Int(scoredSeconds.rounded()))s" : String(format: "%.1fs", scoredSeconds) }
 
-    init(mode: Mode, punct: Bool = false, dice: Dice = .system, avoid: String? = nil) {
+    /// `pool` replaces the word list (drill passes the words built from your weak keys).
+    init(mode: Mode, punct: Bool = false, dice: Dice = .system, avoid: String? = nil, pool: [String]? = nil) {
         self.mode = mode
+        self.pool = pool ?? words
         self.punct = punct
         self.dice = dice
         switch mode.kind {
         case .quote: // never the quote just typed
             let pool = quotes.filter { $0 != avoid }
             target = pool[dice.int(pool.count)].split(separator: " ").map(String.init)
-        case .words: target = pick(mode.n)
+        case .words, .drill: target = pick(mode.n)
         case .time: target = pick(120)
         }
     }
@@ -177,7 +191,7 @@ final class Session {
     }
 
     private func pick(_ k: Int) -> [String] {
-        (0..<k).map { _ in words[dice.int(words.count)] }.map { punct ? decorate($0) : $0 }
+        (0..<k).map { _ in pool[dice.int(pool.count)] }.map { punct ? decorate($0) : $0 }
     }
 
     private func decorate(_ word: String) -> String {
