@@ -8,11 +8,10 @@
 <title>Keyrate</title>
 <meta name="description" content="A typing test. Type the words, see your speed.">
 <link rel="icon" href="../icon.svg">
+<link rel="canonical" href="https://keyrate.jaybulb.com/app">
 <link rel="stylesheet" href="https://jaybulb.com/tokens.css">
+<link rel="stylesheet" href="/palette.css?v=5">
 <style>
-/* white paper, not the shared cream (Joshua 2026-11-01); dark mode keeps the shared tokens */
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --color-bg: #fff; --color-bg2: #f5f5f7; --color-hairline: #e5e5ea; } }
-:root[data-theme="light"] { --color-bg: #fff; --color-bg2: #f5f5f7; --color-hairline: #e5e5ea; }
   :root { --ok: var(--text, #111); --bad: #007aff; --dim: #666; --word: #888; }
   /* upcoming words are large text (3:1 needed), labels and hints are small text (4.5:1 needed) */
   @supports (color: color-mix(in srgb, red 50%, blue)) {
@@ -131,7 +130,9 @@ import { WORDS, QUOTES } from '../words.js'
 const $ = s => document.querySelector(s)
 const wordsEl = $('#words'), caret = $('#caret'), live = $('#live'), sink = $('#sink'), result = $('#result'), hint = $('#hint')
 const HINT = 'Start typing. <kbd>Tab</kbd> restarts, <kbd>Esc</kbd> picks a mode.'
-let kind = 'time', n = 60, punct = false, session, timer = 0, lastQuote = null, shown = 0, drilling = false
+let kind = 'time', n = 60, punct = false, session, timer = 0, lastQuote = null, shown = 0, drilling = false, doneAt = 0
+// a key still in flight when the run ends must not restart it: the result holds for HOLD ms before Enter or Tab count
+const HOLD = 800
 
 // the last mode and punct setting survive a reload
 try { const p = JSON.parse(localStorage.getItem('prefs')); if (p) ({ kind, n, punct } = p) } catch {}
@@ -192,7 +193,7 @@ function tick() {
 }
 
 function showResult() {
-  clearInterval(timer)
+  clearInterval(timer); timer = 0; doneAt = Date.now()
   const s = session.result
   $('#rWpm').textContent = s.wpm; $('#rAcc').textContent = s.accuracy + '%'; $('#rKeys').textContent = session.keyAccuracy + '%'
   $('#rRaw').textContent = s.raw; $('#rChars').textContent = `${s.correct}/${s.wrong}`; $('#rCons').textContent = session.consistency + '%'
@@ -253,7 +254,7 @@ document.addEventListener('visibilitychange', () => {
 document.addEventListener('keydown', e => {
   const typing = document.activeElement === sink || document.activeElement === document.body
   if (e.key === 'Escape') { e.preventDefault(); document.querySelector('#modes button[data-mode][aria-pressed="true"]')?.focus() }
-  else if (typing && (e.key === 'Tab' || (session.done && e.key === 'Enter'))) { e.preventDefault(); reset() }
+  else if (typing && (e.key === 'Tab' || (session.done && e.key === 'Enter'))) { e.preventDefault(); if (!session.done || Date.now() - doneAt > HOLD) reset() }
 })
 wordsEl.addEventListener('click', () => sink.focus({ preventScroll: true }))
 sink.addEventListener('blur', () => { if (!session.done) wordsEl.classList.add('blur') })

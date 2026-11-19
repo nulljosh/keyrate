@@ -1,0 +1,18 @@
+/* Keyrate's palette over the shared jaybulb.com tokens: white and cool greys in light, near-black and cool greys in dark.
+   Never the shared warm paper or brown-black. --miss is the missed-key blue; --miss-ink is that blue darkened (or, in
+   dark mode, lightened) for small text, so it clears 4.5:1 contrast. */
+:root, :root[data-theme="light"] {
+  --color-bg: #fff; --color-bg2: #f5f5f7; --color-hairline: #e5e5ea; --color-hairline-strong: #d1d1d6;
+  --color-text: #1d1d1f; --color-secondary: #6e6e73; --color-soft: #86868b; --text3: rgba(29, 29, 31, .38);
+  --miss: #007aff; --miss-ink: #0062cc; color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --color-bg: #0b0b0c; --color-bg2: #1c1c1e; --color-hairline: #2c2c2e; --color-hairline-strong: #3a3a3c;
+  --color-text: #f5f5f7; --color-secondary: #a1a1a6; --color-soft: #8e8e93; --text3: rgba(245, 245, 247, .36);
+  --miss: #0a84ff; --miss-ink: #4da3ff; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --color-bg: #0b0b0c; --color-bg2: #1c1c1e; --color-hairline: #2c2c2e; --color-hairline-strong: #3a3a3c;
+  --color-text: #f5f5f7; --color-secondary: #a1a1a6; --color-soft: #8e8e93; --text3: rgba(245, 245, 247, .36);
+  --miss: #0a84ff; --miss-ink: #4da3ff; color-scheme: dark;
+}

@@ -48,7 +48,31 @@
 #lp-bg { display: none; } /* the shared bars field; the keyboard scene replaces it */
 
 /* type rhythm: one scale step between each line, tracking eased off the shared -.035em so the headline breathes */
-.lp-hero h1 { font-size: clamp(2.75rem, 7.2vw, 5.25rem); letter-spacing: -.028em; line-height: 1.04; margin-top: 28px; }
-.lp-hero .lp-lede { font-size: clamp(1.0625rem, 1.6vw, 1.25rem); margin-top: 20px; letter-spacing: -.005em; }
+.lp-hero h1 { font-size: clamp(2.75rem, 7.2vw, 5.25rem); letter-spacing: -.028em; line-height: 1.04; margin-top: 0; }
+.lp-hero .lp-lede { font-size: clamp(1.0625rem, 1.6vw, 1.25rem); margin-top: 16px; letter-spacing: -.005em; }
 .lp-hero .lp-cta { margin-top: 32px; }
 .lp-hero .lp-btn { padding: 12px 22px; font-size: 1rem; }
+
+/* top bar: the logo left, the account right; it sits over the hero and scrolls away with it */
+.topbar { position: absolute; z-index: 10; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between;
+          padding: 16px clamp(16px, 3vw, 32px); }
+.topbar a:focus-visible { outline: 2px solid var(--miss); outline-offset: 2px; }
+.tb-brand { display: flex; align-items: center; gap: 8px; min-height: 40px; font-weight: 650; font-size: 1.0625rem; letter-spacing: -.01em; }
+.tb-brand img { border-radius: 8px; display: block; }
+.tb-acct { display: flex; align-items: center; gap: 6px; }
+.tb-link, .tb-btn { display: inline-flex; align-items: center; min-height: 40px; font-size: .9375rem; font-weight: 600; padding: 0 16px; border-radius: 999px; line-height: 1; }
+.tb-link { color: var(--text2); } .tb-link:hover { color: var(--text); }
+.tb-btn { background: var(--text); color: var(--bg); } .tb-btn:hover { opacity: .88; }
+@media (max-width: 380px) { .tb-brand span { display: none; } }
+
+/* the demo readout: the speed it is typing at, and the line as it comes out */
+.lp-hero .demo { margin-top: 32px; display: flex; align-items: center; gap: 12px; max-width: min(92vw, 640px);
+                 font-size: 1rem; color: var(--text2); white-space: nowrap; }
+.demo-wpm { flex: none; font-variant-numeric: tabular-nums; padding: 4px 10px; border-radius: 999px; font-size: .8125rem;
+            background: color-mix(in srgb, var(--miss) 12%, transparent); color: var(--miss-ink); font-weight: 600; }
+.demo-wpm b { display: inline-block; min-width: 3ch; text-align: right; font-weight: 700; }
+.demo-line { overflow: hidden; text-overflow: clip; min-height: 1.6em; }
+.demo-line::after { content: ""; display: inline-block; width: 2px; height: 1.1em; margin-left: 1px; vertical-align: -.18em; background: var(--miss); animation: blink 1s steps(1) infinite; }
+.demo-line i { font-style: normal; color: #fff; background: var(--miss); border-radius: 3px; padding: 0 1px; }
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .lp-hero .demo { display: none; } }

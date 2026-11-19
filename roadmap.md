@@ -2,15 +2,18 @@
 
 Semver. Each minor ships on the web first, then Apple, Kotlin and the terminal. A release is done when `scripts/check.sh` is green, it is deployed, and it has QA screenshots. The history of finished steps lives in `git log`.
 
-Now: **2.3.0** (2026-11-17). Grade 2026-11-19: C+ overall. Web B+, landing B, Mac B, iOS C+, Android D, desktop D, joshuatree/Pi D, docs C.
+Now: **2.4.0** (2026-11-19, web). Grade 2026-11-19: C+ overall. Web B+, landing B, Mac B, iOS C+, Android D, desktop D, joshuatree/Pi D, docs C.
 
-## 2.4.0: Landing and web accounts (in progress)
-- [ ] Top bar: logo left, Log in and Sign up right (Account when signed in)
-- [ ] /account: email sign up, log in, forgot and reset password, sign out, delete account (jaybulb-api)
-- [ ] Hero demo cycles 50, 90, 120 and 200 wpm; the typed line shows under the buttons and the result card shows each run
-- [ ] Brand kit: Mark on white and Mark on charcoal render (mark.svg had no #m), cool greys
-- [ ] SEO: canonical, Open Graph image, Twitter card, JSON-LD, robots.txt, sitemap.xml
-- [ ] Privacy: info@jaybulb.com, accounts section
+## 2.4.0: Landing and web accounts (shipped 2026-11-19)
+- [x] Top bar: logo left, Log in and Sign up right (Account when signed in)
+- [x] /account: email sign up, log in, forgot and reset password, sign out, delete account (jaybulb-api)
+- [x] Hero demo cycles 50, 90, 120 and 200 wpm; the typed line shows under the buttons and the result card shows each run
+- [x] Brand kit: Mark on white and Mark on charcoal render (mark.svg had no #m), cool greys
+- [x] SEO: canonical, Open Graph image, Twitter card, JSON-LD, robots.txt, sitemap.xml
+- [x] Privacy: info@jaybulb.com, accounts section
+- [x] Cool grey palette (web/palette.css) on every page, 8 px rhythm, AA contrast, 40 px tap targets
+- [x] Test: a key in flight when the run ends no longer restarts it (the result holds 800 ms)
+- [ ] Docs: architecture.svg redraw, ARCHITECTURE.md and LOOP-HANDOFF.md refresh, a user help page
 
 ## 2.5.0: Mac and iPhone
 - [ ] Mac UI pass to A+ with QA screenshots (macOS 13 here, 26 upstairs)

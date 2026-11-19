@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>try{const t=localStorage.getItem("keyrate.theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keyrate account</title>
+<meta name="description" content="Log in or sign up for Keyrate with your email.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/icon.svg?v=4">
+<link rel="stylesheet" href="https://jaybulb.com/tokens.css">
+<link rel="stylesheet" href="/palette.css?v=5">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--text); font: 17px/1.5 var(--font-body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+.top { display: flex; align-items: center; padding: 16px clamp(16px, 3vw, 32px); }
+.top a { display: flex; align-items: center; gap: 10px; font-weight: 650; text-decoration: none; letter-spacing: -.01em; }
+.top img { border-radius: 8px; display: block; }
+main { flex: 1; display: grid; place-items: start center; padding: clamp(24px, 8vh, 96px) 16px 64px; }
+.card { width: 100%; max-width: 400px; }
+h1 { font-size: 2rem; line-height: 1.15; letter-spacing: -.025em; margin-bottom: 8px; }
+.sub { color: var(--text2); margin-bottom: 28px; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; border-radius: 12px; background: var(--bg2); margin-bottom: 24px; }
+.seg a { text-align: center; padding: 8px; border-radius: 9px; font-size: .9375rem; font-weight: 600; color: var(--text2); text-decoration: none; }
+.seg a[aria-current="page"] { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+form { display: grid; gap: 14px; }
+label { display: grid; gap: 6px; font-size: .875rem; font-weight: 600; }
+input { font: inherit; font-size: 1rem; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); width: 100%; }
+input:focus { outline: none; border-color: var(--miss); box-shadow: 0 0 0 3px color-mix(in srgb, var(--miss) 25%, transparent); }
+.hint { font-weight: 400; color: var(--text2); font-size: .8125rem; }
+button { font: inherit; font-size: 1rem; font-weight: 600; padding: 12px 18px; border-radius: 999px; border: 0; cursor: pointer; background: var(--text); color: var(--bg); }
+button:disabled { opacity: .5; cursor: default; }
+button.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+button.danger { background: transparent; color: #d70015; border: 1px solid color-mix(in srgb, #ff3b30 40%, transparent); }
+.links { display: flex; justify-content: space-between; font-size: .875rem; color: var(--text2); margin-top: 4px; }
+.links a, .links button { background: none; border: 0; padding: 0; color: inherit; font: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.msg { min-height: 1.5em; font-size: .9375rem; margin-top: 16px; }
+.msg.bad { color: #d70015; } .msg.good { color: var(--miss-ink); }
+.who { padding: 18px; border-radius: 16px; background: var(--bg2); margin-bottom: 20px; }
+.who b { display: block; word-break: break-all; }
+.who p { color: var(--text2); font-size: .9375rem; margin-top: 6px; }
+.row { display: grid; gap: 10px; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--miss); outline-offset: 2px; }
+.foot { text-align: center; font-size: .8125rem; color: var(--text2); padding: 24px 16px; }
+</style>
+</head>
+<body>
+<header class="top"><a href="/"><img src="/icon.svg?v=4" alt="" width="30" height="30"><span>Keyrate</span></a></header>
+<main><div class="card">
+
+<section id="v-auth">
+  <h1 id="title">Log in</h1>
+  <p class="sub" id="lede">One account for Keyrate and the other Jaybulb apps.</p>
+  <nav class="seg" aria-label="Log in or sign up"><a href="#login" id="t-login">Log in</a><a href="#signup" id="t-signup">Sign up</a></nav>
+  <form id="f-auth" novalidate>
+    <label>Email <input id="email" type="email" autocomplete="email" required inputmode="email" spellcheck="false"></label>
+    <label id="pw-l">Password <span class="hint" id="pw-hint" hidden>At least 8 characters.</span><input id="pw" type="password" autocomplete="current-password" minlength="8" required></label>
+    <button id="go">Log in</button>
+    <div class="links"><button type="button" id="forgot">Forgot password?</button></div>
+  </form>
+</section>
+
+<section id="v-forgot" hidden>
+  <h1>Reset your password</h1>
+  <p class="sub">We'll email you a link. It works for an hour.</p>
+  <form id="f-forgot" novalidate>
+    <label>Email <input id="email2" type="email" autocomplete="email" required spellcheck="false"></label>
+    <button>Send the link</button>
+    <div class="links"><a href="#login">Back to log in</a></div>
+  </form>
+</section>
+
+<section id="v-reset" hidden>
+  <h1>Choose a new password</h1>
+  <p class="sub">Then you're logged in.</p>
+  <form id="f-reset" novalidate>
+    <label>New password <span class="hint">At least 8 characters.</span><input id="pw2" type="password" autocomplete="new-password" minlength="8" required></label>
+    <button>Save password</button>
+  </form>
+</section>
+
+<section id="v-me" hidden>
+  <h1>Your account</h1>
+  <div class="who"><b id="me-email"></b><p>Your results still stay on this device. Syncing your bests to your account comes in a later update.</p></div>
+  <div class="row">
+    <a href="/app"><button type="button" style="width:100%">Start typing</button></a>
+    <button type="button" class="ghost" id="out">Log out</button>
+    <button type="button" class="danger" id="del">Delete account</button>
+  </div>
+</section>
+
+<p class="msg" id="msg" role="status" aria-live="polite"></p>
+</div></main>
+<p class="foot"><a href="/privacy.html">Privacy</a></p>
+
+<script type="module">
+import { createClient } from '/spark.js';
+const sb = createClient('https://api.jaybulb.com');
+const $ = (id) => document.getElementById(id);
+const views = ['auth', 'forgot', 'reset', 'me'];
+const show = (v) => views.forEach((n) => ($('v-' + n).hidden = n !== v));
+const say = (text, kind = '') => { $('msg').textContent = text; $('msg').className = 'msg ' + kind; };
+const human = (e) => {
+  const m = String(e?.message || e);
+  if (e?.status === 0) return "Can't reach the server. Check your connection and try again.";
+  if (e?.status === 429 || /slow down/i.test(m)) return 'Too many tries. Wait a minute, then try again.';
+  if (/Invalid login/i.test(m)) return 'That email and password don\'t match.';
+  if (/not confirmed/i.test(m)) return 'Confirm your email first: open the link we sent you.';
+  if (/expired|already used/i.test(m)) return 'That link has expired or was already used. Ask for a new one.';
+  return m.charAt(0).toUpperCase() + m.slice(1) + '.';
+};
+let mode = 'login', session = null, recovering = false;
+
+function route() {
+  if (recovering) return show('reset');
+  if (session) { $('me-email').textContent = session.user?.email || 'Signed in'; return show('me'); }
+  const h = location.hash.slice(1);
+  if (h === 'forgot') { $('email2').value = $('email').value; return show('forgot'); }
+  mode = h === 'signup' ? 'signup' : 'login';
+  const up = mode === 'signup';
+  $('title').textContent = up ? 'Sign up' : 'Log in';
+  $('go').textContent = up ? 'Create account' : 'Log in';
+  $('pw').autocomplete = up ? 'new-password' : 'current-password';
+  $('pw-hint').hidden = !up;
+  $('forgot').hidden = up;
+  $('t-login').toggleAttribute('aria-current', !up); $('t-signup').toggleAttribute('aria-current', up);
+  if (!up) $('t-login').setAttribute('aria-current', 'page'); else $('t-signup').setAttribute('aria-current', 'page');
+  if (h === 'confirmed') say('Email confirmed. Log in to finish.', 'good');
+  show('auth');
+}
+addEventListener('hashchange', () => { say(''); route(); });
+sb.auth.onAuthStateChange((event, s) => {
+  session = s;
+  if (event === 'PASSWORD_RECOVERY') recovering = true;
+  route();
+});
+
+const busy = (form, on) => form.querySelectorAll('button, input').forEach((x) => (x.disabled = on));
+const valid = (email, pw) => {
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'Enter a valid email address.';
+  if (pw != null && pw.length < 8) return 'Passwords are at least 8 characters.';
+};
+
+$('f-auth').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = $('email').value.trim(), password = $('pw').value;
+  const bad = valid(email, password); if (bad) return say(bad, 'bad');
+  busy(e.target, true); say(mode === 'signup' ? 'Creating your account...' : 'Logging in...');
+  const r = mode === 'signup'
+    ? await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + '/account/#confirmed' } })
+    : await sb.auth.signInWithPassword({ email, password });
+  busy(e.target, false);
+  if (r.error) return say(human(r.error), 'bad');
+  if (mode === 'signup') { $('pw').value = ''; say('Check your email for a link to confirm your account, then log in.', 'good'); }
+  else say('');
+});
+$('forgot').addEventListener('click', () => { location.hash = 'forgot'; });
+$('f-forgot').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = $('email2').value.trim(), bad = valid(email); if (bad) return say(bad, 'bad');
+  busy(e.target, true);
+  const r = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/account/' });
+  busy(e.target, false);
+  say(r.error ? human(r.error) : 'If there is an account for that email, a reset link is on its way.', r.error ? 'bad' : 'good');
+});
+$('f-reset').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const password = $('pw2').value, bad = valid('a@b.c', password); if (bad) return say(bad, 'bad');
+  busy(e.target, true);
+  const r = await sb.auth.updateUser({ password });
+  busy(e.target, false);
+  if (r.error) return say(human(r.error), 'bad');
+  recovering = false; say('Password saved. You are logged in.', 'good'); route();
+});
+$('out').addEventListener('click', async () => { await sb.auth.signOut(); say('Logged out.'); location.hash = 'login'; });
+let armed = 0; // two taps to delete, no browser dialog
+$('del').addEventListener('click', async () => {
+  if (Date.now() - armed > 4000) { armed = Date.now(); $('del').textContent = 'Tap again to delete for good'; setTimeout(() => ($('del').textContent = 'Delete account'), 4000); return; }
+  $('del').disabled = true;
+  const r = await sb.auth.deleteAccount();
+  $('del').disabled = false;
+  say(r.error ? human(r.error) : 'Your account is deleted.', r.error ? 'bad' : 'good');
+});
+</script>
+</body>
+</html>

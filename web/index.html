@@ -10,18 +10,26 @@
 <meta property="og:title" content="Keyrate — find the keys you keep missing">
 <meta property="og:description" content="A typing test that draws a keyboard with the five keys you miss most.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://keyrate.jaybulb.com/">
+<meta property="og:site_name" content="Keyrate">
+<meta property="og:image" content="https://keyrate.jaybulb.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Keyrate: find your weak keys. A keyboard with the keys you miss lit blue.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://keyrate.jaybulb.com/">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Keyrate","url":"https://keyrate.jaybulb.com/","description":"A typing test that draws a keyboard with the five keys you miss most, and your speed second by second.","applicationCategory":"EducationalApplication","operatingSystem":"Web, macOS, iOS","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Joshua Trommel"},"license":"https://www.apache.org/licenses/LICENSE-2.0"}</script>
 <link rel="icon" href="icon.svg?v=4">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="https://jaybulb.com/tokens.css">
+<link rel="stylesheet" href="palette.css?v=5">
 <link rel="stylesheet" href="https://jaybulb.com/landing.css">
 <script defer src="https://jaybulb.com/landing.js" data-shape="bars"></script>
-<link rel="stylesheet" href="hero.css?v=4">
-<script type="module" src="hero.js?v=4"></script>
+<link rel="stylesheet" href="hero.css?v=5">
+<script type="module" src="hero.js?v=5"></script>
 <style>
-/* white paper, not the shared cream (Joshua 2026-11-01); dark mode keeps the shared tokens */
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --color-bg: #fff; --color-bg2: #f5f5f7; --color-hairline: #e5e5ea; } }
-:root[data-theme="light"] { --color-bg: #fff; --color-bg2: #f5f5f7; --color-hairline: #e5e5ea; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg); color: var(--text);
@@ -54,6 +62,9 @@
   @media (max-width: 700px) { .says { grid-template-columns: 1fr; gap: 1.25rem; text-align: center; } .shot { padding: 1.5rem 1rem; } .shot-kb span { width: 28px; height: 28px; } .shot-kb .space { width: 140px; } .shot-num { font-size: 3.5rem; } }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .shot-kb .lit { background: #0a84ff; } }
   :root[data-theme="dark"] .shot-kb .lit { background: #0a84ff; }
+  .shot-kb span { transition: background-color .35s, color .35s; }
+  .shot { transition: opacity .22s; } .shot.swap { opacity: .35; }
+  .shot-cap { margin-top: 1.1rem; font-size: .875rem; color: var(--text2); }
   kbd { font: inherit; font-size: .85em; border: 1px solid var(--border); border-radius: 4px; padding: 0 .35em; }
 
   /* Footer, as on the other Jaybulb landings: brand and link columns, the animated glyph band, one fine line */
@@ -77,18 +88,23 @@
 <link rel="stylesheet" href="/fonts/fonts.css">
 </head>
 <body id="top">
+<nav class="topbar" aria-label="Site">
+  <a href="/" class="tb-brand" aria-label="Keyrate home"><img src="icon.svg?v=4" alt="" width="30" height="30"><span>Keyrate</span></a>
+  <div class="tb-acct" id="acct"><a href="/account/#login" class="tb-link">Log in</a><a href="/account/#signup" class="tb-btn">Sign up</a></div>
+</nav>
+<script>/* signed in on this browser: one Account link instead of the pair */try{const s=JSON.parse(localStorage.getItem("sb-spark-auth-token"));if(s&&s.user)document.getElementById("acct").innerHTML='<a href="/account/" class="tb-btn">Account</a>'}catch(e){}</script>
 <main>
 <header class="lp-hero">
   <div class="backdrop" aria-hidden="true" inert><div class="ground" id="kboard"></div></div>
   <div class="sky" id="ksky" aria-hidden="true" inert></div>
   <div class="hero-copy">
-  <span class="lp-mark"><img src="icon.svg?v=4" alt="" width="56" height="56"></span>
   <h1>Find your weak keys.</h1>
   <p class="lp-lede">Type for a minute. See which keys slow you down.</p>
   <div class="lp-cta">
     <a href="/app" class="lp-btn lp-solid">Start typing</a>
     <a href="https://github.com/nulljosh/keyrate" class="lp-btn">Source</a>
   </div>
+  <p class="demo" aria-hidden="true"><span class="demo-wpm"><b id="dWpm">50</b> wpm</span><span class="demo-line" id="dLine"></span></p>
   </div>
 </header>
 <section id="test" class="show lp-reveal">
@@ -96,6 +112,7 @@
     <p class="shot-num">92<small>wpm</small><span>97%</span></p>
     <svg class="shot-line" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,44 20,30 40,34 60,22 80,26 100,18 120,28 140,20 160,14 180,24 200,16 220,12 240,20 260,10 280,14 300,8"/></svg>
     <div class="shot-kb" aria-hidden="true"><div><span>q</span><span>w</span><span class="lit">e</span><span>r</span><span class="lit">t</span><span>y</span><span>u</span><span>i</span><span>o</span><span>p</span></div><div><span class="lit">a</span><span>s</span><span>d</span><span>f</span><span>g</span><span class="lit">h</span><span>j</span><span>k</span><span>l</span></div><div><span>z</span><span>x</span><span>c</span><span>v</span><span>b</span><span class="lit">n</span><span>m</span></div><div><span class="space"></span></div></div>
+    <p class="shot-cap" aria-hidden="true">A sample result.</p>
   </div>
   <ul class="says">
     <li><b>Your five worst keys, lit.</b> A slip you fixed still counts.</li>

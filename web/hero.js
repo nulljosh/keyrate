@@ -1,7 +1,7 @@
-// Hero scene, after Cartons. The keyboard under the title types real quotes from the test at about 80 wpm; now and then
-// a neighbouring key flashes red, the slip is fixed, and the five keys missed most keep a red ring, the way the result
-// screen shows them. Loose keycaps drift at three depths. Every layer eases toward the scroll position at its own
-// speed, and the scene leans away from the pointer on desktop. Reduced motion gets a still scene.
+// Hero scene, after Cartons. The keyboard under the title types real quotes from the test, cycling 50, 90, 120 and
+// 200 wpm; now and then a neighbouring key flashes blue, the slip is fixed, and the five keys missed most that run keep
+// a blue ring, the way the result screen shows them. Loose keycaps drift at three depths. Every layer eases toward the
+// scroll position at its own speed, and the scene leans away from the pointer on desktop. Reduced motion gets a still scene.
 import { QUOTES } from './words.js';
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
@@ -19,31 +19,82 @@ if (board) {
   const kb = board.appendChild(el('div', 'kb'));
   for (const r of ROWS) { const row = kb.appendChild(el('div', 'kb-row')); for (const ch of r) keys[ch] = row.appendChild(el('span', 'key', ch)); }
   keys[' '] = kb.appendChild(el('div', 'kb-row')).appendChild(el('span', 'key space'));
-  const misses = {};
-  const ring = () => {
-    const worst = Object.entries(misses).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k]) => k);
-    for (const k in keys) keys[k].classList.toggle('worst', worst.includes(k));
-  };
-  if (still) { ['e', 't', 'a', 'h', 'n'].forEach((k) => (misses[k] = 1)); ring(); }
-  else (async () => {
-    await wait(700);
-    for (let q = Math.floor(Math.random() * QUOTES.length); ; q++) {
-      const text = QUOTES[q % QUOTES.length].toLowerCase();
-      for (const ch of text) {
-        const k = keys[ch];
-        if (!k) { await wait(90); continue; } // punctuation: no key on this board
-        const near = NEAR[ch];
-        if (near && Math.random() < .045) { // a slip: the wrong key goes red, then backspace
-          const bad = keys[near[Math.floor(Math.random() * near.length)]];
-          bad.classList.add('miss'); await wait(240); bad.classList.remove('miss');
-          misses[ch] = (misses[ch] || 0) + 1; ring(); await wait(160);
-        }
-        k.classList.add('down'); await wait(70); k.classList.remove('down');
-        await wait(60 + Math.random() * 110 + (ch === ' ' ? 40 : 0));
+  if (still) { ['e', 't', 'a', 'h', 'n'].forEach((k) => keys[k].classList.add('worst')); }
+  else queueMicrotask(demo); // after the module has run, so the constants below exist
+}
+
+// The demo: each run types a line of a real quote at the next speed (50, 90, 120, 200 wpm), the typed text shows under
+// the buttons, and when the run ends the result card further down shows what it scored. Time is counted from the
+// scheduled waits, not the wall clock, so a throttled tab can't skew the number. It pauses while the page is hidden
+// or scrolled away from both the hero and the card.
+const SPEEDS = [50, 90, 120, 200];
+const clip = (q, n = 64) => { if (q.length <= n) return q; const c = q.lastIndexOf(' ', n); return q.slice(0, c > 20 ? c : n); };
+let onscreen = true;
+const watched = [document.querySelector('.lp-hero'), document.getElementById('test')].filter(Boolean);
+if ('IntersectionObserver' in window && watched.length) {
+  const seen = new Map();
+  const io = new IntersectionObserver((es) => { es.forEach((e) => seen.set(e.target, e.isIntersecting)); onscreen = [...seen.values()].some(Boolean); });
+  watched.forEach((w) => io.observe(w));
+}
+const awake = async () => { while (document.hidden || !onscreen) await wait(400); };
+
+async function demo() {
+  const line = document.getElementById('dLine'), pace = document.getElementById('dWpm');
+  const show = (typed, bad = '') => { if (!line) return; const t = typed.slice(-46); line.textContent = t; if (bad) line.appendChild(el('i', '', bad)); };
+  await wait(700);
+  for (let run = 0, q = Math.floor(Math.random() * QUOTES.length); ; run++, q++) {
+    const wpm = SPEEDS[run % SPEEDS.length], beat = 12000 / wpm; // ms per character at this speed
+    const text = clip(QUOTES[q % QUOTES.length].toLowerCase());
+    const misses = {}, stamps = [];
+    let t = 0, slips = 0, typed = '';
+    const pass = async (ms) => { t += ms; await wait(ms); };
+    if (pace) pace.textContent = wpm;
+    show('');
+    for (const ch of text) {
+      await awake();
+      const k = keys[ch], near = NEAR[ch];
+      if (k && near && Math.random() < .02 + wpm / 6000) { // a slip, likelier when fast: the wrong key goes blue, then backspace
+        const bad = keys[near[Math.floor(Math.random() * near.length)]];
+        bad.classList.add('miss'); show(typed, bad.textContent); await pass(Math.max(160, beat * 1.6));
+        bad.classList.remove('miss'); show(typed); await pass(Math.max(90, beat));
+        misses[ch] = (misses[ch] || 0) + 1; slips++; ring(misses);
       }
-      await wait(1400);
+      const down = Math.min(70, beat * .45);
+      if (k) k.classList.add('down');
+      typed += ch; show(typed); await pass(down);
+      if (k) k.classList.remove('down');
+      await pass(Math.max(8, beat * (.55 + Math.random() * .8) - down));
+      stamps.push(t);
     }
-  })();
+    score(text.length, slips, t, stamps, misses, wpm);
+    await pass(1600);
+    ring({});
+  }
+}
+function ring(misses) {
+  const worst = Object.entries(misses).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k]) => k);
+  for (const k in keys) keys[k].classList.toggle('worst', worst.includes(k));
+}
+
+// The result card: same convention as the test (five characters a word), accuracy counts each fixed slip.
+function score(chars, slips, ms, stamps, misses, target) {
+  const card = document.querySelector('.shot'); if (!card) return;
+  const wpm = Math.round(chars / 5 / (ms / 60000)), acc = Math.round((chars / (chars + slips)) * 100);
+  const N = 16, w = ms / N, pts = Array.from({ length: N }, (_, i) => stamps.filter((s) => s > i * w && s <= (i + 1) * w).length / 5 / (w / 60000));
+  const sm = pts.map((_, i) => (pts[Math.max(0, i - 1)] + pts[i] + pts[Math.min(N - 1, i + 1)]) / 3);
+  const lo = Math.min(...sm), hi = Math.max(...sm);
+  const poly = sm.map((v, i) => `${Math.round((i * 300) / (N - 1))},${(52 - ((v - lo) / (hi - lo || 1)) * 42).toFixed(1)}`).join(' ');
+  const worst = Object.entries(misses).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k]) => k);
+  card.classList.add('swap');
+  setTimeout(() => {
+    card.querySelector('.shot-num').firstChild.textContent = wpm;
+    card.querySelector('.shot-num span').textContent = acc + '%';
+    card.querySelector('.shot-line polyline').setAttribute('points', poly);
+    card.querySelectorAll('.shot-kb span').forEach((s) => s.classList.toggle('lit', worst.includes(s.textContent)));
+    const cap = card.querySelector('.shot-cap'); if (cap) cap.textContent = `The keyboard up top, typing at ${target} wpm.`;
+    card.setAttribute('aria-label', `A sample result: ${wpm} words per minute, ${acc} percent accuracy` + (worst.length ? `, the keys ${worst.join(', ')} missed most` : ', no keys missed'));
+    card.classList.remove('swap');
+  }, 220);
 }
 
 // Loose keycaps at three depths; the middle stays clear for the title.
