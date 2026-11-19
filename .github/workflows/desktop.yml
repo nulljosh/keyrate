@@ -50,7 +50,8 @@ jobs:
         shell: bash
         run: |
           # find, not globstar: macOS runners ship bash 3.2
-          for apk in $(find kmp/composeApp/build/outputs/apk/debug -name '*.apk' 2>/dev/null); do cp "$apk" "Keyrate-${TAG#v}-android-debug.apk"; done
-          files=$( { find kmp/composeApp/build/compose/binaries \( -name '*.deb' -o -name '*.msi' \) 2>/dev/null; ls Keyrate-*-mac.zip Keyrate-*-android-debug.apk 2>/dev/null; } )
+          for apk in $(find kmp/composeApp/build/outputs/apk/debug -name '*.apk' 2>/dev/null || true); do cp "$apk" "Keyrate-${TAG#v}-android-debug.apk"; done
+          # a miss is fine (each runner builds only its own files), so neither find nor ls may end the step
+          files=$( { find kmp/composeApp/build/compose/binaries \( -name '*.deb' -o -name '*.msi' \) 2>/dev/null || true; find . -maxdepth 1 \( -name 'Keyrate-*-mac.zip' -o -name 'Keyrate-*-android-debug.apk' \) || true; } )
           echo "$files"
-          [ -n "$files" ] && gh release upload "$TAG" $files --clobber
+          if [ -n "$files" ]; then gh release upload "$TAG" $files --clobber; fi
