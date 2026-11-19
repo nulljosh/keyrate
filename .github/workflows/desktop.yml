@@ -49,8 +49,8 @@ jobs:
       - name: Attach to the release
         shell: bash
         run: |
-          shopt -s nullglob globstar
-          files=(kmp/composeApp/build/compose/binaries/**/*.deb kmp/composeApp/build/compose/binaries/**/*.msi Keyrate-*-mac.zip)
-          for apk in kmp/composeApp/build/outputs/apk/debug/*.apk; do cp "$apk" "Keyrate-${TAG#v}-android-debug.apk"; files+=("Keyrate-${TAG#v}-android-debug.apk"); done
-          ls -la "${files[@]}"
-          gh release upload "$TAG" "${files[@]}" --clobber
+          # find, not globstar: macOS runners ship bash 3.2
+          for apk in $(find kmp/composeApp/build/outputs/apk/debug -name '*.apk' 2>/dev/null); do cp "$apk" "Keyrate-${TAG#v}-android-debug.apk"; done
+          files=$( { find kmp/composeApp/build/compose/binaries \( -name '*.deb' -o -name '*.msi' \) 2>/dev/null; ls Keyrate-*-mac.zip Keyrate-*-android-debug.apk 2>/dev/null; } )
+          echo "$files"
+          [ -n "$files" ] && gh release upload "$TAG" $files --clobber
