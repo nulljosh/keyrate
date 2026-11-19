@@ -3,13 +3,14 @@ import SwiftUI
 private struct Palette {
     // dim is small text (4.5:1 needed), word is the large upcoming words (3:1 needed)
     let bg, text, dim, word, chip, bad, hi: Color
-    // Colours from web/brand/BRAND.md: white and charcoal, ink for the caret, red only for a miss.
-    static let light = Palette(bg: .white, text: Color(red: 0.122, green: 0.106, blue: 0.086),
-                               dim: Color(red: 0.122, green: 0.106, blue: 0.086).opacity(0.66), word: Color(red: 0.122, green: 0.106, blue: 0.086).opacity(0.52), chip: Color(red: 0.961, green: 0.961, blue: 0.969),
-                               bad: Color(red: 0, green: 0.478, blue: 1), hi: Color(red: 0.122, green: 0.106, blue: 0.086).opacity(0.12))
-    static let dark = Palette(bg: Color(red: 0.110, green: 0.102, blue: 0.090), text: Color(red: 0.953, green: 0.929, blue: 0.878),
-                              dim: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.66), word: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.52), chip: Color(red: 0.149, green: 0.137, blue: 0.122),
-                              bad: Color(red: 0.039, green: 0.518, blue: 1), hi: Color(red: 0.953, green: 0.929, blue: 0.878).opacity(0.16))
+    // Colours from web/palette.css: white and cool greys in light, near-black and cool greys in dark, blue only for a
+    // miss. Never the warm paper or brown-black the shared jaybulb tokens use.
+    static let ink = Color(red: 0.114, green: 0.114, blue: 0.122)   // #1d1d1f
+    static let snow = Color(red: 0.961, green: 0.961, blue: 0.969)  // #f5f5f7
+    static let light = Palette(bg: .white, text: ink, dim: ink.opacity(0.66), word: ink.opacity(0.52), chip: snow,
+                               bad: Color(red: 0, green: 0.478, blue: 1), hi: ink.opacity(0.12))
+    static let dark = Palette(bg: Color(red: 0.043, green: 0.043, blue: 0.047), text: snow, dim: snow.opacity(0.66), word: snow.opacity(0.52),
+                              chip: Color(red: 0.110, green: 0.110, blue: 0.118), bad: Color(red: 0.039, green: 0.518, blue: 1), hi: snow.opacity(0.16))
 }
 
 struct DefaultsStore: Store {
