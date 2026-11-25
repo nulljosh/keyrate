@@ -35,7 +35,7 @@ struct RootView: View {
 
     private func item(_ title: String, _ icon: String, _ t: Tab) -> some View {
         Button { tab = t } label: {
-            Label(title, systemImage: icon).font(.system(size: 13, weight: tab == t ? .semibold : .regular))
+            Label(title, systemImage: icon).font(.system(.footnote, weight: tab == t ? .semibold : .regular))
                 .foregroundStyle(tab == t ? .primary : .secondary)
                 .padding(.horizontal, 16).frame(minHeight: 36)
                 .background(tab == t ? Color.primary.opacity(0.08) : .clear, in: Capsule())

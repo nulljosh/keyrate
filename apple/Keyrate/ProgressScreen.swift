@@ -31,8 +31,8 @@ struct ProgressScreen: View {
                             ForEach(modes.indices, id: \.self) { i in
                                 let m = modes[i], v = Int(store.get(m.key) ?? "")
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(m.kind == .time ? "\(m.n) seconds" : m.label).font(.system(size: 13)).foregroundStyle(p.dim)
-                                    Text(v.map { "\($0) wpm" } ?? "not yet").font(.system(size: 20, weight: v == nil ? .regular : .semibold))
+                                    Text(m.kind == .time ? "\(m.n) seconds" : m.label).font(.footnote).foregroundStyle(p.dim)
+                                    Text(v.map { "\($0) wpm" } ?? "not yet").font(.system(.title3, weight: v == nil ? .regular : .semibold))
                                         .foregroundStyle(v == nil ? p.dim : p.text).monospacedDigit()
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading).padding(16)
@@ -49,10 +49,10 @@ struct ProgressScreen: View {
                     }
                     section("Leaderboard") {
                         HStack(spacing: 12) {
-                            Image(systemName: "trophy").font(.system(size: 20)).foregroundStyle(p.bad)
+                            Image(systemName: "trophy").font(.title3).foregroundStyle(p.bad)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Daily and weekly boards, per mode").font(.system(size: 15, weight: .semibold)).foregroundStyle(p.text)
-                                Text("Coming with synced accounts. Your runs stay on this device until then.").font(.system(size: 13)).foregroundStyle(p.dim)
+                                Text("Daily and weekly boards, per mode").font(.system(.subheadline, weight: .semibold)).foregroundStyle(p.text)
+                                Text("Coming with synced accounts. Your runs stay on this device until then.").font(.footnote).foregroundStyle(p.dim)
                             }
                             Spacer(minLength: 0)
                         }
@@ -70,17 +70,17 @@ struct ProgressScreen: View {
 
     private func section<C: View>(_ title: String, @ViewBuilder _ content: () -> C) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(.system(size: 13, weight: .semibold)).foregroundStyle(p.dim).textCase(.uppercase).kerning(0.4)
+            Text(title).font(.system(.footnote, weight: .semibold)).foregroundStyle(p.dim).textCase(.uppercase).kerning(0.4)
             content()
         }
     }
 
     private func tile(_ label: String, _ value: String, unit: String?) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(label).font(.system(size: 13)).foregroundStyle(p.dim)
+            Text(label).font(.footnote).foregroundStyle(p.dim)
             HStack(alignment: .lastTextBaseline, spacing: 6) {
                 Text(value).font(.system(size: 40, weight: .semibold)).foregroundStyle(p.text).monospacedDigit()
-                if let unit { Text(unit).font(.system(size: 15)).foregroundStyle(p.dim) }
+                if let unit { Text(unit).font(.subheadline).foregroundStyle(p.dim) }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading).padding(20)
@@ -88,7 +88,7 @@ struct ProgressScreen: View {
     }
 
     private func empty(_ text: String) -> some View {
-        Text(text).font(.system(size: 14)).foregroundStyle(p.dim).frame(maxWidth: .infinity, minHeight: 60)
+        Text(text).font(.subheadline).foregroundStyle(p.dim).frame(maxWidth: .infinity, minHeight: 60)
     }
 
     /// The last runs as a line with a soft fill under it; the newest run is a blue dot.
@@ -130,7 +130,7 @@ struct ProgressScreen: View {
                 }
             }
             Text(worst.isEmpty ? "" : "Missed most: " + misses.sorted { $0.value > $1.value }.prefix(5).map { "\($0.key) \($0.value)×" }.joined(separator: "  ·  "))
-                .font(.system(size: 13)).foregroundStyle(p.dim).padding(.top, 6)
+                .font(.footnote).foregroundStyle(p.dim).padding(.top, 6)
         }
         .accessibilityElement().accessibilityLabel("Keys you miss most: " + misses.sorted { $0.value > $1.value }.prefix(5).map(\.key).joined(separator: ", "))
     }

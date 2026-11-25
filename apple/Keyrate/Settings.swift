@@ -33,7 +33,7 @@ struct ProgressPane: View {
                     Text("Keys you miss most").foregroundStyle(.secondary)
                     HStack(spacing: 6) {
                         ForEach(Array(weak), id: \.key) { k in
-                            Text(k.key).font(.system(size: 15, weight: .semibold)).foregroundStyle(.white)
+                            Text(k.key).font(.system(.subheadline, weight: .semibold)).foregroundStyle(.white)
                                 .frame(width: 34, height: 34)
                                 .background(Color(red: 0, green: 0.478, blue: 1), in: RoundedRectangle(cornerRadius: 6))
                         }
@@ -48,7 +48,7 @@ struct ProgressPane: View {
     private func stat(_ label: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label).font(.caption).foregroundStyle(.secondary)
-            Text(value).font(.system(size: 22, weight: .semibold)).monospacedDigit()
+            Text(value).font(.system(.title2, weight: .semibold)).monospacedDigit()
         }
     }
 }

@@ -39,7 +39,7 @@ struct SettingsScreen: View {
 
     private func section<C: View>(_ title: String, @ViewBuilder _ content: () -> C) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(.system(size: 13, weight: .semibold)).foregroundStyle(p.dim).textCase(.uppercase).kerning(0.4)
+            Text(title).font(.system(.footnote, weight: .semibold)).foregroundStyle(p.dim).textCase(.uppercase).kerning(0.4)
             content()
         }
     }
@@ -61,7 +61,7 @@ private struct AccountCard: View {
         VStack(alignment: .leading, spacing: 16) {
             if let who = account.email { signedIn(who) } else { signedOut }
             if let message {
-                Text(message.text).font(.system(size: 13)).foregroundStyle(message.bad ? Color.red : p.bad)
+                Text(message.text).font(.footnote).foregroundStyle(message.bad ? Color.red : p.bad)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -72,11 +72,11 @@ private struct AccountCard: View {
     private func signedIn(_ who: String) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
-                Text(String(who.prefix(1)).uppercased()).font(.system(size: 18, weight: .semibold)).foregroundStyle(.white)
+                Text(String(who.prefix(1)).uppercased()).font(.system(.title3, weight: .semibold)).foregroundStyle(.white)
                     .frame(width: 40, height: 40).background(p.bad, in: Circle())
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(who).font(.system(size: 15, weight: .semibold)).foregroundStyle(p.text)
-                    Text("Your results stay on this device. Syncing bests comes later.").font(.system(size: 13)).foregroundStyle(p.dim)
+                    Text(who).font(.system(.subheadline, weight: .semibold)).foregroundStyle(p.text)
+                    Text("Your results stay on this device. Syncing bests comes later.").font(.footnote).foregroundStyle(p.dim)
                 }
             }
             HStack(spacing: 8) {
@@ -100,7 +100,7 @@ private struct AccountCard: View {
                 // Our own capsule, full width like the rest (the stock button won't stretch on macOS 13); same request
                 Button { startApple() } label: {
                     HStack(spacing: 6) { Image(systemName: "applelogo"); Text(signingUp ? "Sign up with Apple" : "Sign in with Apple").fontWeight(.semibold) }
-                        .font(.system(size: 14)).foregroundStyle(scheme == .dark ? Color.black : Color.white)
+                        .font(.subheadline).foregroundStyle(scheme == .dark ? Color.black : Color.white)
                         .frame(maxWidth: .infinity, minHeight: 40)
                         .background(scheme == .dark ? Color.white : Color.black, in: Capsule())
                         .contentShape(Capsule())
@@ -113,7 +113,7 @@ private struct AccountCard: View {
                 }
             }
 
-            HStack { line; Text("or with email").font(.system(size: 12)).foregroundStyle(p.dim); line }
+            HStack { line; Text("or with email").font(.caption).foregroundStyle(p.dim); line }
 
             VStack(spacing: 8) {
                 field("Email", text: $email, secure: false)
@@ -122,10 +122,10 @@ private struct AccountCard: View {
             GlassButton(signingUp ? "Create Account" : "Log In", p: p, prominent: true, disabled: account.busy || email.isEmpty || password.isEmpty, action: go)
                 .keyboardShortcut(.defaultAction)
             HStack {
-                Text("One account for Keyrate and the other Jaybulb apps.").font(.system(size: 12)).foregroundStyle(p.dim)
+                Text("One account for Keyrate and the other Jaybulb apps.").font(.caption).foregroundStyle(p.dim)
                 Spacer()
                 if !signingUp {
-                    Button("Forgot password?", action: reset).buttonStyle(.plain).font(.system(size: 12, weight: .medium))
+                    Button("Forgot password?", action: reset).buttonStyle(.plain).font(.system(.caption, weight: .medium))
                         .foregroundStyle(p.text).underline().disabled(account.busy || email.isEmpty)
                 }
             }
@@ -137,7 +137,7 @@ private struct AccountCard: View {
 
     private func tab(_ label: String, _ on: Bool, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(label).font(.system(size: 13, weight: on ? .semibold : .regular)).foregroundStyle(on ? p.text : p.dim)
+            Text(label).font(.system(.footnote, weight: on ? .semibold : .regular)).foregroundStyle(on ? p.text : p.dim)
                 .frame(maxWidth: .infinity, minHeight: 30)
                 .background(on ? p.bg : .clear, in: Capsule())
                 .contentShape(Capsule())
@@ -151,7 +151,7 @@ private struct AccountCard: View {
             if secure { SecureField(label, text: text).textContentType(.password).onSubmit(go) }
             else { TextField(label, text: text).textContentType(.username).autocorrectionDisabled() }
         }
-        .textFieldStyle(.plain).font(.system(size: 15)).foregroundStyle(p.text)
+        .textFieldStyle(.plain).font(.subheadline).foregroundStyle(p.text)
         .padding(.horizontal, 14).frame(height: 44)
         .background(p.bg, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(p.dim.opacity(0.25)))
@@ -244,9 +244,9 @@ private struct GlassButton: View {
         let label = HStack(spacing: 6) {
             if let icon { Image(systemName: icon) }
             Text(title).fontWeight(prominent ? .semibold : .medium)
-            if soon { Text("soon").font(.system(size: 11)).foregroundStyle(p.dim) }
+            if soon { Text("soon").font(.caption2).foregroundStyle(p.dim) }
         }
-        .font(.system(size: 14)).frame(maxWidth: .infinity, minHeight: 40)
+        .font(.subheadline).frame(maxWidth: .infinity, minHeight: 40)
         let fg: Color = destructive ? .red : prominent ? p.bg : p.text
         #if compiler(>=6.2)
         if #available(iOS 26, macOS 26, *) {
@@ -288,7 +288,7 @@ private struct AppearancePicker: View {
             ForEach(Appearance.allCases) { a in
                 Button { appearance = a } label: {
                     HStack(spacing: 12) {
-                        Text(a == .system ? "Auto" : a.label).font(.system(size: 13, weight: appearance == a ? .semibold : .regular))
+                        Text(a == .system ? "Auto" : a.label).font(.system(.footnote, weight: appearance == a ? .semibold : .regular))
                             .foregroundStyle(appearance == a ? p.text : p.dim).frame(width: 40, alignment: .leading)
                         preview(a)
                             .frame(height: 40)

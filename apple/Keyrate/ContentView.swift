@@ -68,7 +68,7 @@ struct ContentView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                Text(counter).font(.system(size: 18)).foregroundStyle(p.dim).monospacedDigit()
+                Text(counter).font(.title3).foregroundStyle(p.dim).monospacedDigit()
                 wordsView
                 TextField("", text: $input)
                     .textFieldStyle(.plain)
@@ -87,7 +87,7 @@ struct ContentView: View {
                     }
                     .modifier(KeyHandlers(tab: { restart() }, enter: { if session.done { restart(); return true }; return false }))
                 if let r = session.result { resultView(r) } else {
-                    Text(keyHints ? "Start typing. Tab restarts." : "Start typing.").font(.system(size: 14)).foregroundStyle(p.dim)
+                    Text(keyHints ? "Start typing. Tab restarts." : "Start typing.").font(.subheadline).foregroundStyle(p.dim)
                 }
             }
             .padding(24)
@@ -191,7 +191,7 @@ struct ContentView: View {
                 appearance = all[(all.firstIndex(of: appearance)! + 1) % all.count]
             } label: {
                 Label(appearance == .system ? "auto" : appearance.rawValue, systemImage: "circle.lefthalf.filled")
-                    .labelStyle(.titleAndIcon).font(.system(size: 14)).foregroundStyle(p.dim)
+                    .labelStyle(.titleAndIcon).font(.subheadline).foregroundStyle(p.dim)
                     .padding(.horizontal, 14).frame(minHeight: 36).contentShape(Capsule())
             }
             .buttonStyle(.plain)
@@ -201,12 +201,12 @@ struct ContentView: View {
     }
 
     private var divider: some View {
-        Text("|").font(.system(size: 14)).foregroundStyle(p.dim.opacity(0.5)).padding(.vertical, 8).accessibilityHidden(true)
+        Text("|").font(.subheadline).foregroundStyle(p.dim.opacity(0.5)).padding(.vertical, 8).accessibilityHidden(true)
     }
 
     private func chip(_ label: String, on: Bool, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(label).font(.system(size: 14)).foregroundStyle(on ? p.text : p.dim)
+            Text(label).font(.subheadline).foregroundStyle(on ? p.text : p.dim)
                 .padding(.horizontal, 14).frame(minHeight: 36)
                 .background(on ? p.chip : .clear, in: Capsule())
                 .contentShape(Capsule())
@@ -218,7 +218,7 @@ struct ContentView: View {
         VStack(spacing: 12) {
             HStack(alignment: .lastTextBaseline, spacing: 6) {
                 Text("\(r.wpm)").font(.system(size: wordSize * 2.5, weight: .semibold)).foregroundStyle(p.text)
-                Text("wpm").font(.system(size: 16)).foregroundStyle(p.dim)
+                Text("wpm").font(.callout).foregroundStyle(p.dim)
             }
             HStack(spacing: 24) {
                 stat("accuracy", "\(r.accuracy)%")
@@ -229,17 +229,17 @@ struct ContentView: View {
             }
             sparkline(session.curve, height: 64, floor: Int(Double(session.curve.min() ?? 0) * 0.8)).accessibilityLabel("Words per minute over the run")
             keyboard(topMisses(session.misses))
-            Text("best \(best) wpm · \(mode.kind == .time ? "\(mode.n)s" : mode.label)").font(.system(size: 14)).foregroundStyle(p.dim)
+            Text("best \(best) wpm · \(mode.kind == .time ? "\(mode.n)s" : mode.label)").font(.subheadline).foregroundStyle(p.dim)
             sparkline(runs(store))
-            if keyHints { Text("Enter restarts.").font(.system(size: 13)).foregroundStyle(p.dim) }
+            if keyHints { Text("Enter restarts.").font(.footnote).foregroundStyle(p.dim) }
         }
         .accessibilityElement(children: .combine)
     }
 
     private func stat(_ label: String, _ value: String) -> some View {
         VStack(spacing: 2) {
-            Text(label).font(.system(size: 12)).foregroundStyle(p.dim)
-            Text(value).font(.system(size: 20)).foregroundStyle(p.text)
+            Text(label).font(.caption).foregroundStyle(p.dim)
+            Text(value).font(.title3).foregroundStyle(p.text)
         }
     }
 
@@ -264,7 +264,7 @@ struct ContentView: View {
                 }
                 .accessibilityHidden(true)
             }
-            Text(missedLine(top)).font(.system(size: 14)).foregroundStyle(p.dim)
+            Text(missedLine(top)).font(.subheadline).foregroundStyle(p.dim)
         }
     }
 
@@ -388,7 +388,7 @@ struct WhatsNew: View {
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("What's new in Keyrate \(version)").font(.system(size: 22, weight: .bold))
+            Text("What's new in Keyrate \(version)").font(.system(.title2, weight: .bold))
             item("scope", "Drill mode", "25 words built from the keys you miss most.")
             item("person.crop.circle", "Settings and an account", "Log in with Apple or email. Pick light, dark or auto.")
             item("chart.line.uptrend.xyaxis", "A new Progress tab", "Your bests, your trend and a heat map of the keys you miss.")
@@ -398,7 +398,7 @@ struct WhatsNew: View {
     }
     private func item(_ icon: String, _ title: String, _ body: String) -> some View {
         HStack(alignment: .top, spacing: 14) {
-            Image(systemName: icon).font(.system(size: 20)).frame(width: 28)
+            Image(systemName: icon).font(.title3).frame(width: 28)
             VStack(alignment: .leading, spacing: 2) { Text(title).fontWeight(.semibold); Text(body).foregroundStyle(.secondary) }
         }
     }
